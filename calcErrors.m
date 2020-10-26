@@ -23,7 +23,5 @@ assert(m_x == m_xhat);
 xhat_true = truth2nav(x);
 dele = nan(simpar.states.nxfe,m_x);
 %Calculate errors
-for i=1:m_x
-    dele = [];
-end
+dele = xhat_true-xhat;
 end

@@ -1,21 +1,21 @@
-function [ ytilde ] = contMeas( )
+function [a_tilde] = contMeas(xt, a_t, w_a, simpar)
 %contInertialMeas synthesizes noise measurements used to propagate the
 %navigation state
 %
 % Inputs:
-%   Input1 = description (units)
-%   Input2 = description (units)
-%
+%   xt = truth state
+%   a_t = current thrust command
+%   w_a = process noise
 % Outputs
-%   Output1 = description (units)
-%   Output2 = description (units)
-%
-% Example Usage
-% [ output_args ] = contInertialMeas( input_args )
+%   a_tilde = sythensized accelerometer data
+ba = xt(simpar.states.ix.ba);
+%Intertial to body transform
+T_i2b = calc_attitude(xt, simpar);
 
-% Author: 
-% Date: 31-Aug-2020 15:46:59
-% Reference: 
-% Copyright 2020 Utah State University
+%Syntesize noise
+eta_a = 0; %%%%%TBD
+
+%Synthesize meausrement
+a_tilde = T_i2b*(a_t+w_a)+ba+eta_a;
 
 end

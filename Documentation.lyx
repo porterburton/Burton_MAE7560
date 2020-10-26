@@ -1,0 +1,1369 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass IEEEtran
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement h
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Lunar Lander Documentation 
+\end_layout
+
+\begin_layout Author
+Porter Burton
+\end_layout
+
+\begin_layout Section
+State Definition
+\end_layout
+
+\begin_layout Subsection*
+Truth State
+\end_layout
+
+\begin_layout Standard
+The truth state for the navigation system fully describes the dynamics and
+ processes of the lunar lander.
+ The truth state variables are carefully selected to capture the scope of
+ this design which focuses on the use of an optical camera and radar altimeter.
+ There are four important coordinate systems for this simulation: an inertial
+ frame whose origin is at the moons center of mass, a moon frame which rotates
+ with the moon and whose origin is coincident with the inertial frame, a
+ body frame fixed to the lander, and a camera frame which represents the
+ rotation to the on board camera.
+ The inertial and fixed Lunar frames are illustrated in fig(1) where the
+ principle axis of the inertial Lunar frame points towards the 1st point
+ of Ares.
+ The fixed, or moon, frame rotates with the moon
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Moon Coordinates.PNG
+	width 3.6in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Inertial and Fixed Lunar Coordinate Frames
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The body and camera frames are illustrated in fig(2).
+ In the body frame, the z axis is aligned with the thrust direction and
+ in the camera frame the z axis is aligned with the camera's line of sight.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Lander Coordinates.PNG
+	width 3.6in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Body and Camera Coordinate Frames
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The truth state vector is given by (1).
+ Where 
+\begin_inset Formula $\boldsymbol{r}_{b/i}^{i}$
+\end_inset
+
+ is the position of the lander in the inertial frame and 
+\begin_inset Formula $\boldsymbol{v}_{b/i}^{i}$
+\end_inset
+
+ is the velocity.
+ 
+\begin_inset Formula $q_{i}^{m}$
+\end_inset
+
+ is a quaternion which represents the attitude rotation of the lander in
+ the moon frame.
+\begin_inset Formula $q_{b}^{c}$
+\end_inset
+
+ is the rotation to the camera frame from the body frame.
+ 
+\begin_inset Formula $b_{r}$
+\end_inset
+
+ is the bias in range, 
+\begin_inset Formula $\boldsymbol{\epsilon}_{g}^{i}$
+\end_inset
+
+ is the bias in gravity, and 
+\begin_inset Formula $\boldsymbol{b}_{accel}$
+\end_inset
+
+ is the bias in the accelerometer.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\boldsymbol{x}_{t}=\left[\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\boldsymbol{v}_{b/i}^{i}\\
+q_{i}^{m}\\
+q_{b}^{c}\\
+b_{r}\\
+\boldsymbol{\epsilon}_{g}^{i}\\
+h_{t}\\
+\boldsymbol{b}_{accel}
+\end{array}\right]}\label{eq:}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The first three states of the truth state vector, position, velocity, and
+ orientation, will be the vehicle states.
+ Note, angular rate is not included because we assume there will only by
+ small and slow changes in attitude.
+ Also gyro bias is not included to further simply the problem.
+ The remaining states are parameter states.
+ Including the quaternion and vector components, the truth state contains
+ 25 elements.
+\end_layout
+
+\begin_layout Subsection*
+Design, Navigation, and Error States
+\end_layout
+
+\begin_layout Standard
+The design state vector describes the state the we will ask the Kalman filter
+ to estimate.
+ We will remove the attitude of the vehicle, and the rotation to the camera
+ because these states can be determined outside of the navigation system.
+ Additionally, removing the quaternion quantities greatly simplifies the
+ mathematics when computing the error state.
+ We also remove the position to a feature of interest because we can calculate
+ this value accurately using the position of the lander and the known position
+ vector of that feature.
+ After removing these quantities, the design state vector has 14 individual
+ elements.
+ A summery of the design states is given by (2) using the same notation
+ as before.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{x}\boldsymbol{=\left[\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\boldsymbol{v}_{b/i}^{i}\\
+b_{r}\\
+\boldsymbol{\epsilon}_{g}^{i}\\
+h_{t}\\
+\boldsymbol{b}_{accel}
+\end{array}\right]}\label{eq:-1}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The navigation state vector has the same elements as the design state.
+ Errors will be injected into this state using the calculated errors.
+ Equation (3) summarizes this state.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\hat{\boldsymbol{x}}\boldsymbol{=\left[\hat{\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\hat{\boldsymbol{v}_{b/i}^{i}}\\
+\hat{b_{r}}\\
+\hat{\boldsymbol{\epsilon}_{g}^{i}}\\
+\hat{h_{t}}\\
+\hat{\boldsymbol{b}_{accel}}
+\end{array}}\right]}\label{eq:-1-1}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The error state vector will be used to store calculated errors in our system.
+ Again, the error state has the same elements as the design state.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\delta x}\boldsymbol{=\left[\begin{array}{c}
+\boldsymbol{\delta r}_{b/i}^{i}\\
+\boldsymbol{\delta v}_{b/i}^{i}\\
+\delta b_{r}\\
+\boldsymbol{\delta\epsilon}_{g}^{i}\\
+\delta h_{t}\\
+\boldsymbol{\delta b}_{accel}
+\end{array}\right]}\label{eq:-1-2}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+State Mapping
+\end_layout
+
+\begin_layout Standard
+Our system will require an efficient method to map between the truth, design,
+ navigation, and error state.
+ These methods are defined and implemented in the simulation.
+ The corrected state estimates 
+\begin_inset Formula $\hat{\boldsymbol{x}}_{c}$
+\end_inset
+
+ are given by (5).
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\hat{\boldsymbol{x}_{c}}=c(\boldsymbol{\hat{x}},\boldsymbol{\delta x})=\boldsymbol{\delta x+\hat{x}=}\left[\hat{\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\hat{\boldsymbol{v}_{b/i}^{i}}\\
+\hat{b_{r}}\\
+\hat{\boldsymbol{\epsilon}_{g}^{i}}\\
+\hat{h_{t}}\\
+\hat{\boldsymbol{b}_{accel}}
+\end{array}}\right]+\left[\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\boldsymbol{v}_{b/i}^{i}\\
+b_{r}\\
+\boldsymbol{\epsilon}_{g}^{i}\\
+h_{t}\\
+\boldsymbol{b}_{accel}
+\end{array}\right]\label{eq:-2}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The insertion equation will insert errors into the navigation state and
+ is given by (6).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\hat{\boldsymbol{x}}=i(\boldsymbol{x},\boldsymbol{\delta x})=\boldsymbol{x-}\boldsymbol{\delta x}=\left[\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\boldsymbol{v}_{b/i}^{i}\\
+b_{r}\\
+\boldsymbol{\epsilon}_{g}^{i}\\
+h_{t}\\
+\boldsymbol{b}_{accel}
+\end{array}\right]-\left[\begin{array}{c}
+\boldsymbol{\delta r}_{b/i}^{i}\\
+\boldsymbol{\delta v}_{b/i}^{i}\\
+\delta b_{r}\\
+\boldsymbol{\delta\epsilon}_{g}^{i}\\
+\delta h_{t}\\
+\boldsymbol{\delta b}_{accel}
+\end{array}\right]\label{eq:-3}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Equation (7) computes the estimation errors.
+ This function must be verified to ensure is produces the error state 
+\begin_inset Formula $\boldsymbol{\delta x}$
+\end_inset
+
+ which was previously defined.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\delta x}=e(\boldsymbol{\hat{x}},\boldsymbol{x})=\boldsymbol{x}-\boldsymbol{\hat{x}}=\left[\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\boldsymbol{v}_{b/i}^{i}\\
+b_{r}\\
+\boldsymbol{\epsilon}_{g}^{i}\\
+h_{t}\\
+\boldsymbol{b}_{accel}
+\end{array}\right]-\left[\hat{\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\hat{\boldsymbol{v}_{b/i}^{i}}\\
+\hat{b_{r}}\\
+\hat{\boldsymbol{\epsilon}_{g}^{i}}\\
+\hat{h_{t}}\\
+\hat{\boldsymbol{b}_{accel}}
+\end{array}}\right]\label{eq:-4}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finally, we need a mapping to extract the design states from the truth state
+ vector.
+ The design states are a subset of the truth states, so to map the design
+ states a simple matrix multiplication is used.
+ The mapping is given by (8) where 
+\series bold
+0 
+\series default
+represents a matrix of zeros.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{x}=m(\boldsymbol{x_{t}})=\left[\begin{array}{ccc}
+I_{6x6} & 0 & 0\\
+0 & 0_{8x8} & 0\\
+0 & 0 & I_{8x8}
+\end{array}\right]\left[\begin{array}{c}
+\boldsymbol{r}_{b/i}^{i}\\
+\boldsymbol{v}_{b/i}^{i}\\
+q_{i}^{m}\\
+q_{b}^{c}\\
+b_{r}\\
+\boldsymbol{\epsilon}_{g}^{i}\\
+h_{t}\\
+\boldsymbol{b}_{accel}
+\end{array}\right]\label{eq:-5}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Validation of Mappings
+\end_layout
+
+\begin_layout Standard
+The mappings are verified using a Matlab simulation.
+ To test the mappings, a truth state and navigation state were initialized
+ using practical initial conditions.
+ Then, errors are injected, calculated and corrected.
+ The simulation showed that the original navigation state and the corrected
+ state after error injection were the same within a tolerance of 
+\begin_inset Formula $10^{-12}$
+\end_inset
+
+.
+ This proves the mapping functions are functional.
+ Fig (3) shows transient values of these states after they we able to pass
+ the tolerance asserts in checkErrorDefConsistency.m in the provided script.
+ Is is seen, the corrected state matches the input state before errors were
+ injected.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename INjection.PNG
+	width 3.7in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Error Injection, Calculation, and Correction Comparison 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+State Propagation 
+\end_layout
+
+\begin_layout Subsection*
+Truth State
+\end_layout
+
+\begin_layout Standard
+We now must define the differential equations for the truth state so that
+ the states can be propagated through time in the simulation.
+ The first two states are position and velocity, whose equations are show
+ by (9,10).
+ The derivative of position is simply velocity, and the derivative of velocity
+ is expressed using a sum of accelerations on the body.
+ The thrust acceleration is given by 
+\begin_inset Formula $a_{thr}$
+\end_inset
+
+, and accelerations from gravity are given by 
+\begin_inset Formula $a_{grav}$
+\end_inset
+
+ which is given by (11).
+ A process noise 
+\begin_inset Formula $w_{a}$
+\end_inset
+
+ is also included in the sum of acceleration components.
+ Thrust acceleration must be generated by a guidance algorithm and will
+ be modeled in the truth state.
+ A simple guidance algorithm is given by (12) which was used for the Apollo
+ missions.
+ Note, to determine a realistic landing trajectory the value of 
+\begin_inset Formula $t_{go}$
+\end_inset
+
+ must be chosen carefully, since this guidance law always produces a convex
+ solution.
+ The desired states, 
+\begin_inset Formula $\boldsymbol{r}_{t_{f}}$
+\end_inset
+
+, 
+\begin_inset Formula $\boldsymbol{v}_{t_{f}}$
+\end_inset
+
+, and 
+\begin_inset Formula $\boldsymbol{a}_{t_{f}}$
+\end_inset
+
+ must be specified at the final time and control how and where the lander
+ will touchdown.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\dot{\boldsymbol{r}}_{b/i}^{i}=\boldsymbol{v}_{b/i}^{i}\label{eq:-6}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{v}}_{b/i}^{i}=\boldsymbol{a}_{grav}^{i}+\boldsymbol{a}_{thr}^{i}+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{a}^{i}\label{eq:-7}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{a}_{grav}^{i}=\frac{-\mu}{\left\Vert \boldsymbol{r}_{b/i}^{i}\right\Vert ^{3}}\boldsymbol{r}_{b/i}^{i}\label{eq:-8}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{a}_{thr}^{i}=\boldsymbol{a}_{tf}^{i}+\frac{6}{t_{go}(\boldsymbol{v}_{tf}^{i}-\boldsymbol{\dot{v}}_{b/i}^{i})}+\frac{12}{t_{go}^{2}(\boldsymbol{r}_{tf}^{i}-\boldsymbol{r}_{b/i}^{i}-\boldsymbol{v}_{b/i}^{i}t_{go})}\label{eq:-9}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next we define the equations related to rotations, which are quaternion
+ equations.
+ We must include the angular velocity of the moon's rotation to compute
+ the rate of change of the moon quaternion.
+ We also assume the camera is fixed to the body so the rate of change of
+ the camera quaternion is zero.
+ Equations (13-15) summarize the propagation of these state using quaternion
+ mathematics.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\dot{q}_{i}^{m}=\frac{`1}{2}\boldsymbol{\omega}_{m/i}^{m}\otimes q_{i}^{m}\label{eq:-10}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\omega}_{m/i}^{m}=\left[\begin{array}{c}
+0\\
+0\\
+\Omega
+\end{array}\right]=\left[\begin{array}{c}
+0\\
+0\\
+2.7x10^{-6}
+\end{array}\right]\frac{rad}{s}\label{eq:-11}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\dot{q}_{b}^{c}=0\label{eq:-12}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The bias states are modeled as exponentially correlated random variables
+ (ECRVs.) To propagate these states a time constant, 
+\begin_inset Formula $\tau$
+\end_inset
+
+, and process noise, 
+\begin_inset Formula $w,$
+\end_inset
+
+ is included.
+ Using the ECRV model, these states are given by (16,17).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\dot{b}_{r}=-\frac{1}{\tau_{r}}b_{r}+w_{r}\label{eq:-13}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\dot{b}_{accl}=-\frac{1}{\tau_{accl}}b_{accl}+w_{accl}\label{eq:-14}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The last two states are the gravity error model and the height of the terrain.
+ A perpendicular velocity term is included in both these equations in order
+ to realize the correct units.
+ This is the lateral velocity of the lander, or the velocity in the direction
+ parallel to the Lunar surface.
+ Each term also includes process noise and a distance correlation factor
+ 
+\begin_inset Formula $d$
+\end_inset
+
+.
+ Equations (18-21) summarize the how these states will be modeled to propagate.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{\epsilon}}_{g}^{i}=-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\label{eq:-15}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\dot{h}=-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\label{eq:-16}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{v}_{\perp}=\boldsymbol{v}_{b/i}^{i}-\boldsymbol{\omega}_{m/i}^{m}\times\boldsymbol{r}_{b/i}^{i}-(\boldsymbol{v}_{b/i}^{i}\cdot\hat{i}_{r})\hat{i}_{r}\label{eq:-17}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\hat{i}_{r}=\frac{\boldsymbol{r}_{b/i}^{i}}{\left\Vert \boldsymbol{r}_{b/i}^{i}\right\Vert }\label{eq:-18}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Measurement Models
+\end_layout
+
+\begin_layout Standard
+The truth states are now fully defined, however we also need a truth sensor
+ model.
+ The sensors modeled are an accelerometer and an optical camera.
+ It is now convenient to define an acceleration term for non-gravitational
+ terms which will be called 
+\series bold
+
+\begin_inset Formula $a$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{a}^{i}=\boldsymbol{a}_{thr}^{i}+\boldsymbol{w}_{a}^{i}\label{eq:-19}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The accelerometer is them modeled with a bias and noise term in (23).
+ A transformation matrix, 
+\begin_inset Formula $T_{i}^{b}$
+\end_inset
+
+, is needed to transform accelerations to the body frame where the sensor
+ will be located.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\tilde{\boldsymbol{a}}^{b}=T_{i}^{b}\boldsymbol{a}^{i}+\boldsymbol{b}_{a}+\boldsymbol{n}_{a}\label{eq:-20}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The camera measure model is more complex, Fig(4) shows vectors which help
+ visualize how the model is constructed.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Line of sight.PNG
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Line of Sight (LOS) vector 
+\begin_inset Formula $\ell_{c}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now, the line of sight vector, 
+\begin_inset Formula $\ell$
+\end_inset
+
+, is given by vector algebra and coordinate system transformations in (24),
+ where 
+\begin_inset Formula $\boldsymbol{r}_{f/m}^{m}$
+\end_inset
+
+ is the position to a feature of interest as expressed in the moon frame.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\ell}^{c}=T_{b}^{c}T_{i}^{b}(T_{m}^{i}\boldsymbol{r}_{f/m}^{m}-\boldsymbol{r}_{b/i}^{i})=\left[\begin{array}{c}
+\ell_{x}\\
+\ell_{y}\\
+\ell_{z}
+\end{array}\right]\label{eq:-21}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With the line of sight vector defined, the camera measurement model is given
+ by (25) which includes a noise term 
+\begin_inset Formula $v_{c}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\tilde{z}}=\left[\begin{array}{c}
+\frac{\ell_{x}}{\ell_{z}}\\
+\frac{\ell_{y}}{\ell_{z}}
+\end{array}\right]+v_{c}\label{eq:-22}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Design and Navigation State Model
+\end_layout
+
+\begin_layout Standard
+Now that the truth model is defined we will define the design and navigation
+ state equations.
+ The design state model can easily be determined from the truth state model
+ and is show by (26).
+ the design model has the same states as the navigation states.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{x}}=\left[\begin{array}{c}
+\boldsymbol{\dot{r}}_{b/i}^{i}\\
+\boldsymbol{\dot{v}}_{b/i}^{i}\\
+\dot{b}_{r}\\
+\boldsymbol{\dot{\epsilon}}_{g}^{i}\\
+\dot{h}\\
+\dot{b}_{accl}
+\end{array}\right]=\left[\begin{array}{c}
+\boldsymbol{v}_{b/i}^{i}\\
+\boldsymbol{a}^{i}+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}\\
+-\frac{1}{\tau_{r}}b_{r}+w_{r}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\\
+-\frac{1}{\tau_{accl}}b_{accl}+w_{accl}
+\end{array}\right]\label{eq:-23}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For the navigation state, the accelerometer sensor data will be used to
+ estimate non-gravitational accelerations.
+ and noise terms are dropped from the truth state.
+ A summary of the navigation state propagation is given by (27).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{\hat{x}}}=\left[\begin{array}{c}
+\hat{\boldsymbol{\dot{r}}_{b/i}^{i}}\\
+\hat{\boldsymbol{\dot{v}}_{b/i}^{i}}\\
+\hat{\dot{b}_{r}}\\
+\hat{\boldsymbol{\dot{\epsilon}}_{g}^{i}}\\
+\hat{\dot{h}}\\
+\hat{\dot{b}}_{accl}
+\end{array}\right]=\left[\begin{array}{c}
+\boldsymbol{\hat{v}}_{b/i}^{i}\\
+\boldsymbol{\tilde{a}}^{i}+\boldsymbol{\hat{\epsilon}}_{g}^{i}+\boldsymbol{\hat{a}}_{grav}\\
+-\frac{1}{\tau_{r}}\hat{b}_{r}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\hat{\epsilon}}_{g}^{i}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}\hat{h}\\
+-\frac{1}{\tau_{accl}}\hat{b}_{accl}
+\end{array}\right]\label{eq:-24}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note, the accelerometer measurements are found in the body frame so we must
+ define (28) where 
+\begin_inset Formula $T_{b}^{i}$
+\end_inset
+
+ is a transformation matrix from the body to the inertial frame.
+ In this simulation, we will assume the thruster will always be pointed
+ in the direction of the inertial velocity and is aligned with one of the
+ principle axis of the body.
+ This assumption makes the transformation matrix 
+\begin_inset Formula $T_{i}^{b}$
+\end_inset
+
+ easy to calculate.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\tilde{a}}^{i}=T_{b}^{i}(\boldsymbol{\tilde{a}}^{b}-\boldsymbol{b}_{accl}-\boldsymbol{n}_{accl})\label{eq:-25}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Propagation in Simulation
+\end_layout
+
+\begin_layout Standard
+Thus far, we have not included any linearization, co-variance, or Kalman
+ updates to our simulation.
+ We simply, want to demonstrate the state propagation with synthesized measureme
+nts in the navigation state.
+ With no process noise, we can model the truth state to be ideal, based
+ on dynamic equations, and compare how the navigation state of the lander
+ compares to the truth.
+ We can also use the navigation state to predict nonlinear measurements
+ and compare them to the synthesized measurements in the form of residuals.
+ As mentioned before, a good guess for simulation time must be found for
+ the guidance law to work effectively.
+ This time changes based on how far the lander must travel to its landing
+ site.
+ For this lunar lander simulation, 
+\begin_inset Formula $t_{go}$
+\end_inset
+
+ is set to 550 s in order to generate a good trajectory with the sample
+ initial conditions.
+\end_layout
+
+\begin_layout Standard
+For simplicity, the trajectory for this lander simulation is held in the
+ (x,y) inertial plane.
+ The lander starts approximately 10 km above and 400 km behind the desired
+ landing site at the final time.
+ The lander has an initial velocity in the x direction and begins in a stable
+ parking orbit.
+ A feature is also observed 100 km behind the landing site to generate LOS
+ measurements.
+ The trajectory of the lander is shown in Fig(5).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Course Project/Propogation/Trajectory.png
+	scale 51
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Lunar Lander Trajectory
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The thrust accelerations, generated by the guidance law are shown in fig(6),
+ note the sudden cutoff in thrust at the end of the simulation.
+ This means to achieve the desired touchdown velocity and acceleration,
+ the lander had to touch down while still thrusting.
+ Also, fig(7) shows the velocity of the lander converging to the desired
+ values.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Course Project/Propogation/Thrust Accl.png
+	scale 51
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Thrust Commands Given by the Guidance Law
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Course Project/Propogation/Velocity.png
+	scale 51
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Truth State Velocity
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We see, with no state correction the navigation state is able to predict
+ the true states, but the values begin to drift as the simulation runs longer.
+ Fig(8) shows the error in the position states for the landing burn.
+ Over 550 seconds the position estimate drifted by 5 m in the y direction
+ and 1.5 m in the x direction.
+ Since most of the motion for this trajectory was across the x direction,
+ it is interesting that the y position has more error.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Course Project/Propogation/Position Error.png
+	scale 51
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Position Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now, fig(9) shows the error in the velocity states.
+ The velocity error is incredibly small over the whole simulation, on the
+ order of 
+\begin_inset Formula $cm/s$
+\end_inset
+
+.
+ However, even just a small error lead to the potion errors above.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Course Project/Propogation/Velocity Error.png
+	scale 51
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Velocity Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For now, process noise is not included in the bias, gravity, and height
+ states.
+ Also, these states are not coupled with any other state, except for the
+ gravity bias 
+\begin_inset Formula $\boldsymbol{\epsilon}_{g}^{i}$
+\end_inset
+
+ in velocity.
+ So theses state propagate exactly the same as the truth states and there
+ are no errors.
+ 
+\end_layout
+
+\begin_layout Standard
+A feature is also added to the simulation to test the camera LOS measurements.
+ The position to a feature ,
+\begin_inset Formula $\boldsymbol{r}_{f}^{i}$
+\end_inset
+
+ in the inertial plane is given and is assumed to be in the camera's line
+ of sight.
+ With this feature location, the LOS vector can easily be computed and the
+ measurement is synthesized.
+ Comparing the synthesized measurement to the predicted measurement, we
+ see the residuals are very small, on the order of 
+\begin_inset Formula $10^{-6}$
+\end_inset
+
+, until near the end of the simulation where some singularity seems to arise.
+ The residuals of the camera measurements are shown in fig(10).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Course Project/Propogation/LOSRes.png
+	scale 51
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+LOS Residuals
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Overall, this simulation shows the truth and navigation states are propagating
+ as expected and the dynamic modeling seems to be correct.
+ We will continue to add elements to make this model more complex, but for
+ now this is a good check to see things are running properly.
+ 
+\end_layout
+
+\end_body
+\end_document

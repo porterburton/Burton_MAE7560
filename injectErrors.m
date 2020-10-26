@@ -22,7 +22,5 @@ function [ xhat_err ] = injectErrors( xhat_true, dele, simpar )
 assert(m_x == m_delx);
 %Inject errors
 xhat_err = zeros(simpar.states.nxf,m_x);
-for i=1:m_x
-    xhat_err = [];
-end
+xhat_err = xhat_true - dele;
 end

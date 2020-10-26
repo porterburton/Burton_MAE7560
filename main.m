@@ -41,6 +41,7 @@ if checkProp
     simpar_ref.general.processStarTrackerEnable = 0;
     simpar_ref.general.processVisualOdometryEnable = 0;
     
+    
     traj_propcheck = runsim(simpar_ref,1,1);
     savefile.traj_propcheck = traj_propcheck;
     h_figs_prop_check = plotNavPropErrors(traj_propcheck);

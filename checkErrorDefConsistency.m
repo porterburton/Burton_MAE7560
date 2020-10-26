@@ -24,4 +24,8 @@ estimationErrors = calcErrors(xhat_errorInject, x, simpar);
 assert(norm(estimationErrors - dele) < 1e-11);
 x_errorCorrect = correctErrors(xhat_errorInject, dele, simpar);
 assert(norm(xhat - x_errorCorrect) < 1e-12);
+disp("Asserts Passed in checkErrorDefConsistency!")
+format long
+disp(["xhat_errorInject       EstimationErrors    x_errorCorrect      x_hat_original"])
+disp([xhat_errorInject, estimationErrors, x_errorCorrect, xhat])
 end

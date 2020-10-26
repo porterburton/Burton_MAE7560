@@ -23,7 +23,5 @@ function [ x_hat_c ] = correctErrors( x_hat, dele, simpar)
 assert(m_x == m_delx);
 x_hat_c = nan(simpar.states.nxf,m_x);
 %Correct errors
-for i=1:m_x
-    x_hat_c = [];  
-end
+x_hat_c = dele+x_hat;
 end

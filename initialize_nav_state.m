@@ -1,4 +1,4 @@
-function [ xhat ] = initialize_nav_state( x, P)
+function [ xhat ] = initialize_nav_state(simpar)
 %initialize_nav_state initializes the navigation state vector consistent
 %with the initial covariance matrix
 %
@@ -22,12 +22,24 @@ function [ xhat ] = initialize_nav_state( x, P)
 % vehicle states, and initialize any sensor parameters to zero.  An example
 % of these calculations are shown below.
 
-[L_posvelatt,p] = chol(P(simpar.states.ixfe.vehicle,...
-    simpar.states.ixfe.vehicle,1),'lower');
-assert(p == 0, 'Phat_0 is not positive definite');
-delx_0 = zeros(simpar.states.nxfe,1);
-delx_0(simpar.states.ixfe.vehicle,1) = L_posvelatt * ...
-    randn(length(simpar.states.ixfe.vehicle),1);
-xhat = injectErrors(truth2nav(x),delx_0, simpar);
-xhat(simpar.states.ixf.parameter,1) = 0;
+% [L_posvelatt,p] = chol(P(simpar.states.ixfe.vehicle,...
+%     simpar.states.ixfe.vehicle,1),'lower');
+% assert(p == 0, 'Phat_0 is not positive definite');
+% delx_0 = zeros(simpar.states.nxfe,1);
+% delx_0(simpar.states.ixfe.vehicle,1) = L_posvelatt * ...
+%     randn(length(simpar.states.ixfe.vehicle),1);
+% xhat = injectErrors(truth2nav(x),delx_0, simpar);
+% xhat(simpar.states.ixf.parameter,1) = 0;
+fnames = fieldnames(simpar.general.ic);
+xt = zeros(length(fnames),1);
+%use inital conditions
+for i=1:length(fnames)
+    xt(i) = simpar.general.ic.(fnames{i});
+end
+
+xhat = truth2nav(xt);
+% random = rand(length(xhat),1);
+% %create some randomness
+% xhat(1:6) = xhat+random.*xhat;
+disp(xhat)
 end
