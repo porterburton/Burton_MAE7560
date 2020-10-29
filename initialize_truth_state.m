@@ -29,5 +29,6 @@ xt = zeros(length(fnames),1);
 for i=1:length(fnames)
     xt(i) = simpar.general.ic.(fnames{i});
 end
+xt(simpar.states.ix.cam_att) = simpar.general.q_b2c_nominal;
 disp(xt)
 end

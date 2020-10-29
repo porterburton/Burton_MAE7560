@@ -11,10 +11,6 @@ t_kalman = (0:nstep_aid)'.*simpar.general.dt_kalmanUpdate;
 nstep_aid = length(t_kalman);
 %If you are computing the nominal star tracker or other sensor orientations
 %below is an example of one way to do this
-qz = rotv2quat(simpar.general.thz_st,[0,0,1]');
-qy = rotv2quat(simpar.general.thy_st,[0,1,0]');
-qx = rotv2quat(simpar.general.thx_st,[1,0,0]');
-simpar.general.q_b2st_nominal = qmult(qx,qmult(qy,qz));
 qz = rotv2quat(simpar.general.thz_c,[0,0,1]');
 qy = rotv2quat(simpar.general.thy_c,[0,1,0]');
 qx = rotv2quat(simpar.general.thx_c,[1,0,0]');

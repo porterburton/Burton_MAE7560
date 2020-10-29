@@ -9,14 +9,15 @@ qi2b = tmat2q(Ti2b);
 qi2m = x(simpar.states.ix.att);
 Ti2m = q2tmat(qi2m);
 %Body to camera frame
-Tb2c = eye(3,3); %identitiy for now
-qb2c = tmat2q(Tb2c);
-%qb2c = xd(simpar.states.ix.cam_att);
+qb2c = x(simpar.states.ix.cam_att);
+Tb2c = q2tmat(qb2c);
 
 %Find postion to feaure in inertial frame   
-%[~, r_fi, ~, ~] = gen_landmark(r_bi, zeros(3,1), qi2b, R_moon, 'center', qb2c);
+[~, r_fi, intersect, ~] = gen_landmark(r_bi, zeros(3,1), qi2b, R_moon, 'center',...
+    qb2c);
+assert(intersect,'Camera did not intersect the moon!');
 %r_fi= [simpar.general.rx_star_tf; simpar.general.ry_star_tf; simpar.general.rz_star_tf];
-r_fi = [200e3;1730e3;100e3];
+% r_fi = [200e3;1730e3;100e3];
 %Determine lc 
 lc = Tb2c*Ti2b*(r_fi-r_bi);
 lx = lc(1);
