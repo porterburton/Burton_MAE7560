@@ -38,8 +38,4 @@ for i=1:length(fnames)
 end
 
 xhat = truth2nav(xt);
-% random = rand(length(xhat),1);
-% %create some randomness
-% xhat(1:6) = xhat+random.*xhat;
-disp(xhat)
 end

@@ -6,5 +6,5 @@ function [ delx_dot ] = errorState_de( delx, input )
 Fhat = calc_F( input.xhat, input.ytilde, input.simpar );
 
 %Compute Phat_dot
-delx_dot = []
+delx_dot = Fhat*delx;
 end

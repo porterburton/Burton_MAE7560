@@ -119,8 +119,8 @@ status collapsed
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename Moon Coordinates.PNG
-	width 3.6in
+	filename Figures/Moon Coordinates.PNG
+	width 8.5cm
 
 \end_inset
 
@@ -160,8 +160,8 @@ status collapsed
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename Lander Coordinates.PNG
-	width 3.6in
+	filename Figures/Lander Coordinates.PNG
+	width 8.5cm
 
 \end_inset
 
@@ -515,8 +515,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename INjection.PNG
-	width 3.7in
+	filename Figures/INjection.PNG
+	width 8.5cm
 
 \end_inset
 
@@ -855,7 +855,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Line of sight.PNG
+	filename Figures/Line of sight.PNG
+	width 8.5cm
 
 \end_inset
 
@@ -1078,8 +1079,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Course Project/Propogation/Trajectory.png
-	scale 51
+	filename Figures/Trajectory.png
+	width 8.5cm
 
 \end_inset
 
@@ -1124,8 +1125,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Course Project/Propogation/Thrust Accl.png
-	scale 51
+	filename Figures/Thrust Accl.png
+	width 8.5cm
 
 \end_inset
 
@@ -1161,8 +1162,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Course Project/Propogation/Velocity.png
-	scale 51
+	filename Figures/Velocity.png
+	width 8.5cm
 
 \end_inset
 
@@ -1209,8 +1210,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Course Project/Propogation/Position Error.png
-	scale 51
+	filename Figures/Position Error.png
+	width 8.5cm
 
 \end_inset
 
@@ -1258,8 +1259,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Course Project/Propogation/Velocity Error.png
-	scale 51
+	filename Figures/Velocity Error.png
+	width 8.5cm
 
 \end_inset
 
@@ -1328,8 +1329,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Course Project/Propogation/LOSRes.png
-	scale 51
+	filename Figures/LOSRes.png
+	width 8.5cm
 
 \end_inset
 
@@ -1362,6 +1363,107 @@ Overall, this simulation shows the truth and navigation states are propagating
  as expected and the dynamic modeling seems to be correct.
  We will continue to add elements to make this model more complex, but for
  now this is a good check to see things are running properly.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Linearization of Design Model
+\end_layout
+
+\begin_layout Standard
+In an extended Kalman filter, the nonlinear design model is linearized about
+ the current state estimate to produce (29).
+ We will begin by obtaining the 
+\begin_inset Formula $F$
+\end_inset
+
+ matrix, as function of the navigation state estimates.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\delta\boldsymbol{\dot{x}}=F(\hat{\boldsymbol{x}})\delta\boldsymbol{x}+B\boldsymbol{w}\label{eq:-26}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Starting with the non-linear design model dynamics, 
+\begin_inset Formula $f(\boldsymbol{x},\boldsymbol{u})$
+\end_inset
+
+, which are given by (26), the Jacobian of 
+\begin_inset Formula $f(\boldsymbol{x},\boldsymbol{u}),$
+\end_inset
+
+ is computed to linearize the system.
+ To obtain this, we must take derivatives with respect to each state.
+ Since the definition of 
+\begin_inset Formula $\boldsymbol{v}_{\perp}$
+\end_inset
+
+is highly nonlinear, derivatives with respect to each state become overly
+ complicated and unnecessary.
+ So, we will assume that 
+\begin_inset Formula $\boldsymbol{v}_{\perp}$
+\end_inset
+
+ does not change with respect the position and velocity states which simplifies
+ the Jacobian.
+ The F matrix is defined by (30) and shown for this problem by (31) where
+ 
+\begin_inset Formula $0_{3}$
+\end_inset
+
+denotes a 3x3 matrix of zeros and 
+\begin_inset Formula $I_{3}$
+\end_inset
+
+ denotes a 3x3 identity matrix.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+F=\frac{df(\boldsymbol{x},\boldsymbol{u})}{d\boldsymbol{x}}\mid_{\boldsymbol{x}=\hat{\boldsymbol{x}}}\label{eq:-27}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+F=\left[\begin{array}{cccccc}
+0_{3} & I_{3} & 0 & 0_{3} & 0 & 0_{3}\\
+\frac{-\mu}{\left\Vert \boldsymbol{r}\right\Vert ^{3}}(I_{3}-3i_{r}i_{r}^{T}) & 0_{3} & 0 & I_{3} & 0 & 0_{3}\\
+0_{3} & 0_{3} & \frac{-1}{\tau_{r}} & 0_{3} & 0 & 0_{3}\\
+0_{3} & 0_{3} & 0 & \frac{\left\Vert \boldsymbol{v_{\perp}}\right\Vert }{d_{g}}I_{3} & 0 & 0_{3}\\
+0_{3} & 0_{3} & 0 & 0_{3} & \frac{\left\Vert \boldsymbol{v_{\perp}}\right\Vert }{d_{h}} & 0_{3}\\
+0_{3} & 0_{3} & 0 & 0_{3} & 0 & \frac{-1}{\tau_{accl}}
+\end{array}\right]\label{eq:-28}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To check that the linearization of the design states accurately models error
+ propagation, we can compare the results to the nonlinear state propagation.
+ That is, we may find the error between the propagated truth state and the
+ propagated navigation state to compare to the linear error propogation.
+ Using the lineariztion for the dynamics above, the accuracy of error propogatio
+n is on the order of mm for position and cm/s for velocity.
+ All other states match almost perfectly with very low difference.
+ This verifies the linearization which will be used in the Kalman filter.
  
 \end_layout
 

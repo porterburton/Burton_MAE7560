@@ -51,7 +51,7 @@ xlabel('t')
 ylabel('Velocity (km/s)')
 legend('Vx','Vy','Vz')
 grid on;
-%% Plot Velocity
+%% Plot Position
 h_figs(end+1) = figure;
 plot(traj.time_nav, traj.truthState(simpar.states.ix.pos,:)'*m2km,'LineWidth',2);
 xlabel('t')
@@ -115,7 +115,7 @@ stairs(traj.time_nav, dele(simpar.states.ixfe.pos,:)');
 title('Position Error');
 xlabel('time(s)');
 ylabel('m');
-legend('$x_i$','$y_i$','$z_i$')
+legend('x_i','y_i','z_i')
 grid on;
 %% Plot velocity error
 h_figs(end+1) = figure;

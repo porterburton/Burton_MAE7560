@@ -30,7 +30,6 @@ eps_gi = xhat(simpar.states.ixf.gbias);
 h = xhat(simpar.states.ixf.h);
 ba = xhat(simpar.states.ixf.ba);
 
-v_perp = input.v_perp;
 a_tilde = input.ytilde;
 tau_r = simpar.general.tau_r;
 tau_a = simpar.general.tau_a;
