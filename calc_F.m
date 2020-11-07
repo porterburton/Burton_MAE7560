@@ -1,7 +1,7 @@
 function [ Fhat ] = calc_F( xhat, ytilde, simpar )
 %calc_F computes the dynamics coupling matrix
 %
-% Inputs:
+% Inputs:  
 %   xhat = state vector
 %   ytilde = continuous measurements
 %   simpar = simulation parameters
@@ -18,7 +18,7 @@ function [ Fhat ] = calc_F( xhat, ytilde, simpar )
 % Copyright 2020 Utah State University
 
 %% Unpack the inputs
-
+% he
 %% Compute Fhat
 Fhat = [];
 end
