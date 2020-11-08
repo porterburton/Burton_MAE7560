@@ -368,14 +368,14 @@ Our system will require an efficient method to map between the truth, design,
 \hat{\boldsymbol{\epsilon}_{g}^{i}}\\
 \hat{h_{t}}\\
 \hat{\boldsymbol{b}_{accel}}
-\end{array}}\right]+\left[\begin{array}{c}
-\boldsymbol{r}_{b/i}^{i}\\
-\boldsymbol{v}_{b/i}^{i}\\
-b_{r}\\
-\boldsymbol{\epsilon}_{g}^{i}\\
-h_{t}\\
-\boldsymbol{b}_{accel}
-\end{array}\right]\label{eq:-2}
+\end{array}}\right]+\boldsymbol{\left[\begin{array}{c}
+\boldsymbol{\delta r}_{b/i}^{i}\\
+\boldsymbol{\delta v}_{b/i}^{i}\\
+\delta b_{r}\\
+\boldsymbol{\delta\epsilon}_{g}^{i}\\
+\delta h_{t}\\
+\boldsymbol{\delta b}_{accel}
+\end{array}\right]}\label{eq:-2}
 \end{equation}
 
 \end_inset
@@ -635,7 +635,7 @@ We now must define the differential equations for the truth state so that
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\boldsymbol{a}_{thr}^{i}=\boldsymbol{a}_{tf}^{i}+\frac{6}{t_{go}(\boldsymbol{v}_{tf}^{i}-\boldsymbol{\dot{v}}_{b/i}^{i})}+\frac{12}{t_{go}^{2}(\boldsymbol{r}_{tf}^{i}-\boldsymbol{r}_{b/i}^{i}-\boldsymbol{v}_{b/i}^{i}t_{go})}\label{eq:-9}
+\boldsymbol{a}_{thr}^{i}=\boldsymbol{a}_{tf}^{i}+\frac{6}{t_{go}}(\boldsymbol{v}_{tf}^{i}-\boldsymbol{\dot{v}}_{b/i}^{i})+\frac{12}{t_{go}^{2}}(\boldsymbol{r}_{tf}^{i}-\boldsymbol{r}_{b/i}^{i}-\boldsymbol{v}_{b/i}^{i}t_{go})\label{eq:-9}
 \end{equation}
 
 \end_inset
@@ -652,13 +652,23 @@ Next we define the equations related to rotations, which are quaternion
  the camera quaternion is zero.
  Equations (13-15) summarize the propagation of these state using quaternion
  mathematics.
+ Note, in order to compute the quaternion multiplication, 
+\begin_inset Formula $\boldsymbol{\omega}_{m/i}^{m}$
+\end_inset
+
+ must be augmented as a quaternion.
+ This is achieved by placing 
+\begin_inset Formula $\boldsymbol{\omega}_{m/i}^{m}$
+\end_inset
+
+ in the vector portion of the quaternion and a zero in the scalar portion.
  
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\dot{q}_{i}^{m}=\frac{`1}{2}\boldsymbol{\omega}_{m/i}^{m}\otimes q_{i}^{m}\label{eq:-10}
+\dot{q}_{i}^{m}=\frac{1}{2}\boldsymbol{\omega}_{m/i}^{m}\otimes q_{i}^{m}\label{eq:-10}
 \end{equation}
 
 \end_inset
@@ -822,7 +832,7 @@ The truth states are now fully defined, however we also need a truth sensor
 \end_layout
 
 \begin_layout Standard
-The accelerometer is them modeled with a bias and noise term in (23).
+The accelerometer is then modeled with a bias and noise term in (23).
  A transformation matrix, 
 \begin_inset Formula $T_{i}^{b}$
 \end_inset
@@ -991,10 +1001,10 @@ For the navigation state, the accelerometer sensor data will be used to
 \hat{\dot{b}}_{accl}
 \end{array}\right]=\left[\begin{array}{c}
 \boldsymbol{\hat{v}}_{b/i}^{i}\\
-\boldsymbol{\tilde{a}}^{i}+\boldsymbol{\hat{\epsilon}}_{g}^{i}+\boldsymbol{\hat{a}}_{grav}\\
+\boldsymbol{\hat{a}}^{i}+\boldsymbol{\hat{\epsilon}}_{g}^{i}+\boldsymbol{\hat{a}}_{grav}\\
 -\frac{1}{\tau_{r}}\hat{b}_{r}\\
--\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\hat{\epsilon}}_{g}^{i}\\
--\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}\hat{h}\\
+-\frac{\left\Vert \boldsymbol{\hat{v}}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\hat{\epsilon}}_{g}^{i}\\
+-\frac{\left\Vert \boldsymbol{\hat{v}}_{\perp}\right\Vert }{d_{h}}\hat{h}\\
 -\frac{1}{\tau_{accl}}\hat{b}_{accl}
 \end{array}\right]\label{eq:-24}
 \end{equation}
@@ -1018,14 +1028,18 @@ Note, the accelerometer measurements are found in the body frame so we must
 \begin_inset Formula $T_{i}^{b}$
 \end_inset
 
- easy to calculate.
+ easy to calculate [I
+\series bold
+nclude the equation used here
+\series default
+].
  
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\boldsymbol{\tilde{a}}^{i}=T_{b}^{i}(\boldsymbol{\tilde{a}}^{b}-\boldsymbol{b}_{accl}-\boldsymbol{n}_{accl})\label{eq:-25}
+\boldsymbol{\hat{a}}^{i}=T_{b}^{i}(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{\hat{b}}_{accl})\label{eq:-25}
 \end{equation}
 
 \end_inset
@@ -1064,9 +1078,10 @@ For simplicity, the trajectory for this lander simulation is held in the
  (x,y) inertial plane.
  The lander starts approximately 10 km above and 400 km behind the desired
  landing site at the final time.
- The lander has an initial velocity in the x direction and begins in a stable
- parking orbit.
- A feature is also observed 100 km behind the landing site to generate LOS
+ The lander has an initial velocity in the x direction of 1.7 km/s and begins
+ in a Lunar descent orbit with an apoapsis of 100 km and a periapsis of
+ 10km.
+ A feature is synthesize in the center of the cameras view to generate LOS
  measurements.
  The trajectory of the lander is shown in Fig(5).
 \end_layout
@@ -1247,7 +1262,7 @@ Now, fig(9) shows the error in the velocity states.
 \end_inset
 
 .
- However, even just a small error lead to the potion errors above.
+ However, even the small errors lead to the position errors above.
  
 \end_layout
 
@@ -1297,9 +1312,12 @@ For now, process noise is not included in the bias, gravity, and height
 \end_inset
 
  in velocity.
- So theses state propagate exactly the same as the truth states and there
- are no errors.
- 
+ So these state propagate exactly the same as the truth states and there
+ are no errors [
+\series bold
+add state propagation for all states in final report
+\series default
+].
 \end_layout
 
 \begin_layout Standard
@@ -1366,6 +1384,10 @@ Overall, this simulation shows the truth and navigation states are propagating
  
 \end_layout
 
+\begin_layout Section
+Model Linearization
+\end_layout
+
 \begin_layout Subsection*
 Linearization of Design Model
 \end_layout
@@ -1419,7 +1441,7 @@ is highly nonlinear, derivatives with respect to each state become overly
 \begin_inset Formula $0_{3}$
 \end_inset
 
-denotes a 3x3 matrix of zeros and 
+ denotes a 3x3 matrix of zeros and 
 \begin_inset Formula $I_{3}$
 \end_inset
 
@@ -1442,10 +1464,10 @@ F=\frac{df(\boldsymbol{x},\boldsymbol{u})}{d\boldsymbol{x}}\mid_{\boldsymbol{x}=
 \begin{equation}
 F=\left[\begin{array}{cccccc}
 0_{3} & I_{3} & 0 & 0_{3} & 0 & 0_{3}\\
-\frac{-\mu}{\left\Vert \boldsymbol{r}\right\Vert ^{3}}(I_{3}-3i_{r}i_{r}^{T}) & 0_{3} & 0 & I_{3} & 0 & 0_{3}\\
+\frac{-\mu}{\left\Vert \boldsymbol{\hat{r}}\right\Vert ^{3}}(I_{3}-3i_{r}i_{r}^{T}) & 0_{3} & 0 & I_{3} & 0 & 0_{3}\\
 0_{3} & 0_{3} & \frac{-1}{\tau_{r}} & 0_{3} & 0 & 0_{3}\\
-0_{3} & 0_{3} & 0 & \frac{\left\Vert \boldsymbol{v_{\perp}}\right\Vert }{d_{g}}I_{3} & 0 & 0_{3}\\
-0_{3} & 0_{3} & 0 & 0_{3} & \frac{\left\Vert \boldsymbol{v_{\perp}}\right\Vert }{d_{h}} & 0_{3}\\
+0_{3} & 0_{3} & 0 & \frac{\left\Vert \boldsymbol{\hat{v}_{\perp}}\right\Vert }{d_{g}}I_{3} & 0 & 0_{3}\\
+0_{3} & 0_{3} & 0 & 0_{3} & \frac{\left\Vert \boldsymbol{\hat{v}_{\perp}}\right\Vert }{d_{h}} & 0_{3}\\
 0_{3} & 0_{3} & 0 & 0_{3} & 0 & \frac{-1}{\tau_{accl}}
 \end{array}\right]\label{eq:-28}
 \end{equation}
@@ -1459,9 +1481,10 @@ F=\left[\begin{array}{cccccc}
 To check that the linearization of the design states accurately models error
  propagation, we can compare the results to the nonlinear state propagation.
  That is, we may find the error between the propagated truth state and the
- propagated navigation state to compare to the linear error propogation.
- Using the lineariztion for the dynamics above, the accuracy of error propogatio
-n is on the order of mm for position and cm/s for velocity.
+ propagated navigation state to compare to the linear error propagation.
+ Using the lineariztion for the dynamics above, the accuracy of error propagatio
+n is on the order of mm for position and cm/s for velocity over one Kalman
+ cycle.
  All other states match almost perfectly with very low difference.
  This verifies the linearization which will be used in the Kalman filter.
  
