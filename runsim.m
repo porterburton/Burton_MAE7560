@@ -102,6 +102,7 @@ for i=2:nstep
     input_cov.simpar = simpar;
     %%%%P_buff(:,:,i) = rk4('navCov_de', P_buff(:,:,i-1), input_cov,simpar.general.dt);
     % Propagate the error state from tn-1 to tn if errorPropTestEnable == 1
+    format long
     if simpar.general.errorPropTestEnable
         input_delx.xhat = xhat_buff(:,i-1);
         input_delx.ytilde = [];
@@ -116,6 +117,10 @@ for i=2:nstep
         if simpar.general.errorPropTestEnable
             checkErrorPropagation(x_buff(:,i), xhat_buff(:,i),...
                 delx_buff(:,i), simpar);
+        end
+        
+        if simpar.general.measLinerizationCheckEnable == true
+            los.validate_linearization(x_buff(:,i), xhat_buff(:,i), simpar);
         end
         %Adjust the Kalman update index
         k = k + 1;
