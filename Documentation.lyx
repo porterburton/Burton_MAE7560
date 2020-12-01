@@ -1033,13 +1033,160 @@ Note, the accelerometer measurements are found in the body frame so we must
 nclude the equation used here
 \series default
 ].
- 
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
 \boldsymbol{\hat{a}}^{i}=T_{b}^{i}(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{\hat{b}}_{accl})\label{eq:-25}
+\end{equation}
+
+\end_inset
+
+Beginning with the design model
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{x}}=\left[\begin{array}{c}
+\boldsymbol{\dot{r}}_{b/i}^{i}\\
+\boldsymbol{\dot{v}}_{b/i}^{i}\\
+\dot{b}_{r}\\
+\boldsymbol{\dot{\epsilon}}_{g}^{i}\\
+\dot{h}\\
+\dot{b}_{accl}
+\end{array}\right]=\left[\begin{array}{c}
+\boldsymbol{v}_{b/i}^{i}\\
+\boldsymbol{a}^{i}+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}\\
+-\frac{1}{\tau_{r}}b_{r}+w_{r}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\\
+-\frac{1}{\tau_{accl}}b_{accl}+w_{accl}
+\end{array}\right]
+\end{equation}
+
+\end_inset
+
+Solving for the true accelerations yields
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{a}^{i}=T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}-\boldsymbol{n}_{a}\right)
+\end{equation}
+
+\end_inset
+
+Substitute into the design model
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{x}}=\left[\begin{array}{c}
+\boldsymbol{\dot{r}}_{b/i}^{i}\\
+\boldsymbol{\dot{v}}_{b/i}^{i}\\
+\dot{b}_{r}\\
+\boldsymbol{\dot{\epsilon}}_{g}^{i}\\
+\dot{h}\\
+\dot{b}_{accl}
+\end{array}\right]=\left[\begin{array}{c}
+\boldsymbol{v}_{b/i}^{i}\\
+T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}-\boldsymbol{n}_{a}\right)+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}\\
+-\frac{1}{\tau_{r}}b_{r}+w_{r}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\\
+-\frac{1}{\tau_{accl}}b_{accl}+w_{accl}
+\end{array}\right]
+\end{equation}
+
+\end_inset
+
+Rearranging yields
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{x}}=\left[\begin{array}{c}
+\boldsymbol{\dot{r}}_{b/i}^{i}\\
+\boldsymbol{\dot{v}}_{b/i}^{i}\\
+\dot{b}_{r}\\
+\boldsymbol{\dot{\epsilon}}_{g}^{i}\\
+\dot{h}\\
+\dot{b}_{accl}
+\end{array}\right]=\left[\begin{array}{c}
+\boldsymbol{v}_{b/i}^{i}\\
+T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}\right)+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}-T_{b}^{i}\boldsymbol{n}_{a}\\
+-\frac{1}{\tau_{r}}b_{r}+w_{r}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\\
+-\frac{1}{\tau_{accl}}b_{accl}+w_{accl}
+\end{array}\right]
+\end{equation}
+
+\end_inset
+
+Rearranging more yields
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{x}}=\left[\begin{array}{c}
+\boldsymbol{\dot{r}}_{b/i}^{i}\\
+\boldsymbol{\dot{v}}_{b/i}^{i}\\
+\dot{b}_{r}\\
+\boldsymbol{\dot{\epsilon}}_{g}^{i}\\
+\dot{h}\\
+\dot{\boldsymbol{b}}_{accl}
+\end{array}\right]=\left[\begin{array}{c}
+\boldsymbol{v}_{b/i}^{i}\\
+T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}\right)+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}\\
+-\frac{1}{\tau_{r}}b_{r}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}\\
+-\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h\\
+-\frac{1}{\tau_{accl}}\boldsymbol{b}_{accl}
+\end{array}\right]+\left[\begin{array}{ccccc}
+0_{3\times3} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & 0_{3\times3}\\
+-T_{b}^{i} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & 0_{3\times3}\\
+0_{1\times3} & 1 & 0_{1\times3} & 0 & 0_{1\times3}\\
+0_{3\times3} & 0_{3\times1} & I & 0_{3\times1} & 0_{3\times3}\\
+0_{1\times3} & 0 & 0_{1\times3} & 1 & 0_{1\times3}\\
+0_{3\times3} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & I_{3\times3}
+\end{array}\right]\left[\begin{array}{c}
+\boldsymbol{n}_{a}\\
+w_{r}\\
+\boldsymbol{w}_{g}\\
+w_{h}\\
+\boldsymbol{w}_{accl}
+\end{array}\right]
+\end{equation}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{\dot{x}}=\left[\begin{array}{c}
+\boldsymbol{\dot{r}}_{b/i}^{i}\\
+\boldsymbol{\dot{v}}_{b/i}^{i}\\
+\dot{b}_{r}\\
+\boldsymbol{\dot{\epsilon}}_{g}^{i}\\
+\dot{h}\\
+\dot{\boldsymbol{b}}_{accl}
+\end{array}\right]=\boldsymbol{f}\left(\boldsymbol{x},\tilde{\boldsymbol{a}}^{b}\right)+B\boldsymbol{w}
+\end{equation}
+
+\end_inset
+
+This can be linearized to achieve
+\begin_inset Formula 
+\begin{equation}
+\delta\boldsymbol{\dot{x}}=F(\hat{\boldsymbol{x}})\delta\boldsymbol{x}+B\boldsymbol{w}
+\end{equation}
+
+\end_inset
+
+which has the covariance propagation equation
+\begin_inset Formula 
+\begin{equation}
+\dot{P}=FP+PF^{T}+BQB^{T}
+\end{equation}
+
+\end_inset
+
+where
+\begin_inset Formula 
+\begin{equation}
+Q=E\left[\boldsymbol{w}\left(t\right)\boldsymbol{w}^{T}\left(t'\right)\right]=\textrm{BlkDiag}\left(Q_{a},Q_{r},Q_{g},Q_{h},Q_{accl}\right)
 \end{equation}
 
 \end_inset
