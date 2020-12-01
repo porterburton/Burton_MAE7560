@@ -12,8 +12,8 @@ ba = xt(simpar.states.ix.ba);
 %Intertial to body transform
 T_i2b = calc_attitude(xt, simpar);
 
-%Syntesize noise
-eta_a = 0; %%%%%TBD
+%Syntesized noise
+eta_a = sqrt(simpar.truth.params.vrw^2/simpar.general.dt)*randn(3,1);
 
 %Synthesize meausrement
 a_tilde = T_i2b*(a_t+w_a)+ba+eta_a;

@@ -1,41 +1,13 @@
-function [ xhat ] = initialize_nav_state(simpar)
-%initialize_nav_state initializes the navigation state vector consistent
-%with the initial covariance matrix
-%
-% Inputs:
-%   Input1 = description (units)
-%   Input2 = description (units)
-%
-% Outputs
-%   Output1 = description (units)
-%   Output2 = description (units)
-%
-% Example Usage
-% [ output_args ] = initialize_nav_state( input_args )
-
-% Author: 
-% Date: 31-Aug-2020 15:46:59
-% Reference: 
-% Copyright 2020 Utah State University
-
-% Consistent with the truth state initialization, you should randomize the
-% vehicle states, and initialize any sensor parameters to zero.  An example
-% of these calculations are shown below.
-
-% [L_posvelatt,p] = chol(P(simpar.states.ixfe.vehicle,...
-%     simpar.states.ixfe.vehicle,1),'lower');
-% assert(p == 0, 'Phat_0 is not positive definite');
-% delx_0 = zeros(simpar.states.nxfe,1);
-% delx_0(simpar.states.ixfe.vehicle,1) = L_posvelatt * ...
-%     randn(length(simpar.states.ixfe.vehicle),1);
-% xhat = injectErrors(truth2nav(x),delx_0, simpar);
-% xhat(simpar.states.ixf.parameter,1) = 0;
-fnames = fieldnames(simpar.general.ic);
-xt = zeros(length(fnames),1);
-%use inital conditions
-for i=1:length(fnames)
-    xt(i) = simpar.general.ic.(fnames{i});
-end
+function [ xhat ] = initialize_nav_state(simpar, xt)
 
 xhat = truth2nav(xt);
+%Inject Errors into the Position and velocity states 
+%(all other states have been randomized already)
+xhat(simpar.states.ix.pos(1)) = xhat(simpar.states.ix.pos(1))+simpar.truth.ic.sig_rx*randn;
+xhat(simpar.states.ix.pos(2)) = xhat(simpar.states.ix.pos(2))+simpar.truth.ic.sig_ry*randn;
+xhat(simpar.states.ix.pos(3)) = xhat(simpar.states.ix.pos(3))+simpar.truth.ic.sig_rz*randn;
+
+xhat(simpar.states.ix.vel(1)) = xhat(simpar.states.ix.vel(1))+simpar.truth.ic.sig_vx*randn;
+xhat(simpar.states.ix.vel(2)) = xhat(simpar.states.ix.vel(2))+simpar.truth.ic.sig_vy*randn;
+xhat(simpar.states.ix.vel(3)) = xhat(simpar.states.ix.vel(3))+simpar.truth.ic.sig_vz*randn;
 end

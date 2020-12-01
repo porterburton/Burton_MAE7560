@@ -1,4 +1,4 @@
-function [ xt ] = initialize_truth_state(simpar)
+    function [ xt ] = initialize_truth_state(simpar)
 %initialize_truth_state initialize the truth state vector consistent with
 %the initial covariance matrix
 %
@@ -30,5 +30,16 @@ for i=1:length(fnames)
     xt(i) = simpar.general.ic.(fnames{i});
 end
 xt(simpar.states.ix.cam_att) = simpar.general.q_b2c_nominal;
-disp(xt)
+%Position and Velocity will always be set to the Inital Condition
+%Randomize all other truth states
+xt(simpar.states.ix.br) = simpar.truth.ic.sig_br*randn;
+xt(simpar.states.ix.gbias(1)) = simpar.truth.ic.sig_epsx*randn;
+xt(simpar.states.ix.gbias(2)) = simpar.truth.ic.sig_epsy*randn;
+xt(simpar.states.ix.gbias(3)) = simpar.truth.ic.sig_epsz*randn;
+xt(simpar.states.ix.h) = simpar.truth.ic.sig_h*randn;
+xt(simpar.states.ix.ba(1)) = simpar.truth.ic.sig_acclx*randn;
+xt(simpar.states.ix.ba(2)) = simpar.truth.ic.sig_accly*randn;
+xt(simpar.states.ix.ba(3)) = simpar.truth.ic.sig_acclz*randn;
+
+
 end

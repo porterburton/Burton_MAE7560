@@ -18,10 +18,10 @@ function xhatdot = navState_de(xhat,input)
 
 %% Unpack the inputs
 simpar = input.simpar;
+v_perp = input.v_perp;
 mu = simpar.general.mu;
 T_i2b = calc_attitude(xhat, simpar);
 T_b2i = T_i2b'; %Need body to inertial for velocity (in inertial)
-omega_mi_m = [0;0;simpar.general.omega_moon];
 
 r = xhat(simpar.states.ixf.pos);
 v = xhat(simpar.states.ixf.vel);
@@ -40,8 +40,6 @@ rdot = v;
 a_grav = -mu/norm(r)^3*r;
 vdot = T_b2i*(a_tilde-ba)+a_grav+eps_gi;
 bdot_r = -br/tau_r;
-
-v_perp = v-cross(omega_mi_m,r)-dot(v, r/norm(r))*r/norm(r);
 epsdot_gi = -norm(v_perp)/d_g*eps_gi;
 hdot = -norm(v_perp)/d_h*h;
 bdot_a = -ba/tau_a;
