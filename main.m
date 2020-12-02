@@ -24,7 +24,7 @@ savefile.filename = filename;
 checkProp = 0;
 runSingleMonteCarlo = 0;
 runMonteCarlo = 1;
-savefigs = 0;
+savefigs = 1;
 [ simpar, ~ ] = createSimParams( paramfile );
 %% Ensure certain flags are not enabled for certain runs
 if simpar.general.measLinerizationCheckEnable
@@ -55,7 +55,7 @@ if checkProp
             set(h,'renderer','Painters');
             saveas(h,fullfile(savedir,figfilename),'fig');
             saveas(h,fullfile(savedir,figfilename),'png');
-            saveas(h,fullfile(savedir,figfilename),'espc');
+            %saveas(h,fullfile(savedir,figfilename),'espc');
         end
         disp('Plots saved.')
     end
@@ -75,7 +75,7 @@ if runSingleMonteCarlo
             set(h,'renderer','Painters');
             saveas(h,fullfile(savedir,figfilename),'fig');
             saveas(h,fullfile(savedir,figfilename),'png');
-            saveas(h,fullfile(savedir,figfilename),'espc');
+            %saveas(h,fullfile(savedir,figfilename),'espc');
         end
         disp('Plots saved.')
     end
@@ -116,7 +116,7 @@ if runMonteCarlo
             figfilename = sprintf('monteCarlo_%d__%s',i,filesubstr);
             saveas(h,fullfile(savedir,figfilename),'fig');
             saveas(h,fullfile(savedir,figfilename),'png');
-            saveas(h,fullfile(savedir,figfilename),'espc');
+            %saveas(h,fullfile(savedir,figfilename),'espc');
         end
         disp('Plots saved.')
     end

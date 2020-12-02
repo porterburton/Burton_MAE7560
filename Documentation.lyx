@@ -114,7 +114,7 @@ The truth state for the navigation system fully describes the dynamics and
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \align center
@@ -155,7 +155,7 @@ The body and camera frames are illustrated in fig(2).
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \align center
@@ -734,7 +734,7 @@ The bias states are modeled as exponentially correlated random variables
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\dot{b}_{accl}=-\frac{1}{\tau_{accl}}b_{accl}+w_{accl}\label{eq:-14}
+\dot{\boldsymbol{b}}_{accl}=-\frac{1}{\tau_{accl}}\boldsymbol{b}_{accl}+\boldsymbol{w}_{accl}\label{eq:-14}
 \end{equation}
 
 \end_inset
@@ -966,14 +966,14 @@ Now that the truth model is defined we will define the design and navigation
 \dot{b}_{r}\\
 \boldsymbol{\dot{\epsilon}}_{g}^{i}\\
 \dot{h}\\
-\dot{b}_{accl}
+\dot{\boldsymbol{b}}_{accl}
 \end{array}\right]=\left[\begin{array}{c}
 \boldsymbol{v}_{b/i}^{i}\\
 \boldsymbol{a}^{i}+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}\\
 -\frac{1}{\tau_{r}}b_{r}+w_{r}\\
 -\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\\
 -\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\\
--\frac{1}{\tau_{accl}}b_{accl}+w_{accl}
+-\frac{1}{\tau_{accl}}\boldsymbol{b}_{accl}+\boldsymbol{w}_{accl}
 \end{array}\right]\label{eq:-23}
 \end{equation}
 
@@ -998,14 +998,14 @@ For the navigation state, the accelerometer sensor data will be used to
 \hat{\dot{b}_{r}}\\
 \hat{\boldsymbol{\dot{\epsilon}}_{g}^{i}}\\
 \hat{\dot{h}}\\
-\hat{\dot{b}}_{accl}
+\hat{\dot{\boldsymbol{b}}}_{accl}
 \end{array}\right]=\left[\begin{array}{c}
 \boldsymbol{\hat{v}}_{b/i}^{i}\\
 \boldsymbol{\hat{a}}^{i}+\boldsymbol{\hat{\epsilon}}_{g}^{i}+\boldsymbol{\hat{a}}_{grav}\\
 -\frac{1}{\tau_{r}}\hat{b}_{r}\\
 -\frac{\left\Vert \boldsymbol{\hat{v}}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\hat{\epsilon}}_{g}^{i}\\
 -\frac{\left\Vert \boldsymbol{\hat{v}}_{\perp}\right\Vert }{d_{h}}\hat{h}\\
--\frac{1}{\tau_{accl}}\hat{b}_{accl}
+-\frac{1}{\tau_{accl}}\hat{\boldsymbol{b}}_{accl}
 \end{array}\right]\label{eq:-24}
 \end{equation}
 
@@ -1024,15 +1024,6 @@ Note, the accelerometer measurements are found in the body frame so we must
  In this simulation, we will assume the thruster will always be pointed
  in the direction of the inertial velocity and is aligned with one of the
  principle axis of the body.
- This assumption makes the transformation matrix 
-\begin_inset Formula $T_{i}^{b}$
-\end_inset
-
- easy to calculate [I
-\series bold
-nclude the equation used here
-\series default
-].
 \end_layout
 
 \begin_layout Standard
@@ -1052,20 +1043,25 @@ Beginning with the design model
 \dot{b}_{r}\\
 \boldsymbol{\dot{\epsilon}}_{g}^{i}\\
 \dot{h}\\
-\dot{b}_{accl}
+\dot{\boldsymbol{b}}_{accl}
 \end{array}\right]=\left[\begin{array}{c}
 \boldsymbol{v}_{b/i}^{i}\\
 \boldsymbol{a}^{i}+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}\\
 -\frac{1}{\tau_{r}}b_{r}+w_{r}\\
 -\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\\
 -\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\\
--\frac{1}{\tau_{accl}}b_{accl}+w_{accl}
+-\frac{1}{\tau_{accl}}\boldsymbol{b}_{accl}+\boldsymbol{w}_{accl}
 \end{array}\right]
 \end{equation}
 
 \end_inset
 
-Solving for the true accelerations yields
+Solving for the true accelerations yields (30), where 
+\begin_inset Formula $\boldsymbol{n}_{a}$
+\end_inset
+
+ is a white process noise form the accelerometer measurements.
+ 
 \begin_inset Formula 
 \begin{equation}
 \boldsymbol{a}^{i}=T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}-\boldsymbol{n}_{a}\right)
@@ -1082,66 +1078,45 @@ Substitute into the design model
 \dot{b}_{r}\\
 \boldsymbol{\dot{\epsilon}}_{g}^{i}\\
 \dot{h}\\
-\dot{b}_{accl}
+\dot{\boldsymbol{b}}_{accl}
 \end{array}\right]=\left[\begin{array}{c}
 \boldsymbol{v}_{b/i}^{i}\\
 T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}-\boldsymbol{n}_{a}\right)+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}\\
 -\frac{1}{\tau_{r}}b_{r}+w_{r}\\
 -\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\\
 -\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\\
--\frac{1}{\tau_{accl}}b_{accl}+w_{accl}
+-\frac{1}{\tau_{accl}}\boldsymbol{b}_{accl}+\boldsymbol{w}_{accl}
 \end{array}\right]
 \end{equation}
 
 \end_inset
 
-Rearranging yields
+Rearranging the velocity equation yields
+\end_layout
+
+\begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\boldsymbol{\dot{x}}=\left[\begin{array}{c}
-\boldsymbol{\dot{r}}_{b/i}^{i}\\
-\boldsymbol{\dot{v}}_{b/i}^{i}\\
-\dot{b}_{r}\\
-\boldsymbol{\dot{\epsilon}}_{g}^{i}\\
-\dot{h}\\
-\dot{b}_{accl}
-\end{array}\right]=\left[\begin{array}{c}
-\boldsymbol{v}_{b/i}^{i}\\
-T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}\right)+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}-T_{b}^{i}\boldsymbol{n}_{a}\\
--\frac{1}{\tau_{r}}b_{r}+w_{r}\\
--\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{w}_{g}\\
--\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h+w_{h}\\
--\frac{1}{\tau_{accl}}b_{accl}+w_{accl}
-\end{array}\right]
+\boldsymbol{v}_{b/i}^{i}=T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}\right)+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}-T_{b}^{i}\boldsymbol{n}_{a}\label{eq:-36}
 \end{equation}
 
 \end_inset
 
-Rearranging more yields
+The dynamics are now driven by random a random process noise vector, 
+\begin_inset Formula $\boldsymbol{w}$
+\end_inset
+
+, Rearranging more yields
 \begin_inset Formula 
 \begin{equation}
 \boldsymbol{\dot{x}}=\left[\begin{array}{c}
-\boldsymbol{\dot{r}}_{b/i}^{i}\\
-\boldsymbol{\dot{v}}_{b/i}^{i}\\
-\dot{b}_{r}\\
-\boldsymbol{\dot{\epsilon}}_{g}^{i}\\
-\dot{h}\\
-\dot{\boldsymbol{b}}_{accl}
-\end{array}\right]=\left[\begin{array}{c}
 \boldsymbol{v}_{b/i}^{i}\\
 T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}\right)+\boldsymbol{\epsilon}_{g}^{i}+\boldsymbol{a}_{grav}\\
 -\frac{1}{\tau_{r}}b_{r}\\
 -\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{g}}\boldsymbol{\epsilon}_{g}^{i}\\
 -\frac{\left\Vert \boldsymbol{v}_{\perp}\right\Vert }{d_{h}}h\\
 -\frac{1}{\tau_{accl}}\boldsymbol{b}_{accl}
-\end{array}\right]+\left[\begin{array}{ccccc}
-0_{3\times3} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & 0_{3\times3}\\
--T_{b}^{i} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & 0_{3\times3}\\
-0_{1\times3} & 1 & 0_{1\times3} & 0 & 0_{1\times3}\\
-0_{3\times3} & 0_{3\times1} & I & 0_{3\times1} & 0_{3\times3}\\
-0_{1\times3} & 0 & 0_{1\times3} & 1 & 0_{1\times3}\\
-0_{3\times3} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & I_{3\times3}
-\end{array}\right]\left[\begin{array}{c}
+\end{array}\right]+B\left[\begin{array}{c}
 \boldsymbol{n}_{a}\\
 w_{r}\\
 \boldsymbol{w}_{g}\\
@@ -1167,26 +1142,20 @@ w_{h}\\
 
 \end_inset
 
-This can be linearized to achieve
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\delta\boldsymbol{\dot{x}}=F(\hat{\boldsymbol{x}})\delta\boldsymbol{x}+B\boldsymbol{w}
-\end{equation}
-
-\end_inset
-
-which has the covariance propagation equation
-\begin_inset Formula 
-\begin{equation}
-\dot{P}=FP+PF^{T}+BQB^{T}
-\end{equation}
-
-\end_inset
-
-where
-\begin_inset Formula 
-\begin{equation}
-Q=E\left[\boldsymbol{w}\left(t\right)\boldsymbol{w}^{T}\left(t'\right)\right]=\textrm{BlkDiag}\left(Q_{a},Q_{r},Q_{g},Q_{h},Q_{accl}\right)
+B=\left[\begin{array}{ccccc}
+0_{3\times3} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & 0_{3\times3}\\
+-T_{b}^{i} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & 0_{3\times3}\\
+0_{1\times3} & 1 & 0_{1\times3} & 0 & 0_{1\times3}\\
+0_{3\times3} & 0_{3\times1} & I_{3\times3} & 0_{3\times1} & 0_{3\times3}\\
+0_{1\times3} & 0 & 0_{1\times3} & 1 & 0_{1\times3}\\
+0_{3\times3} & 0_{3\times1} & 0_{3\times3} & 0_{3\times1} & I_{3\times3}
+\end{array}\right]\label{eq:-37}
 \end{equation}
 
 \end_inset
@@ -1283,7 +1252,7 @@ The thrust accelerations, generated by the guidance law are shown in fig(6),
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -1320,7 +1289,7 @@ Thrust Commands Given by the Guidance Law
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -1417,7 +1386,7 @@ Now, fig(9) shows the error in the velocity states.
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -1490,7 +1459,7 @@ A feature is also added to the simulation to test the camera LOS measurements.
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -1547,6 +1516,11 @@ In an extended Kalman filter, the nonlinear design model is linearized about
 \end_inset
 
  matrix, as function of the navigation state estimates.
+ The process noise coupling matrix, 
+\begin_inset Formula $B$
+\end_inset
+
+, was defined in (33).
 \end_layout
 
 \begin_layout Standard
@@ -2600,7 +2574,1819 @@ Difference
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Simulation
+\end_layout
+
+\begin_layout Subsection*
+Covariance Propagation
+\end_layout
+
+\begin_layout Standard
+We now define the equations to propagate the co ariance in the Kalman Filter.
+ The change in covariance over time is given by (46).
+\begin_inset Formula 
+\begin{equation}
+\dot{P}=FP+PF^{T}+BQB^{T}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Where 
+\begin_inset Formula $Q$
+\end_inset
+
+ is the power spectral density, which is the block diagonal of each driving
+ noise process, equations (47-50) summarize the power spectral density calculati
+ons.
+ In the covariance propagation equation the steady state values for the
+ state variations will be used.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+Q_{rbias}=2\sigma_{rbias}^{2}/\tau_{r}\label{eq:-38}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+Q_{abias}=I_{3\times3}2\sigma_{abias}^{2}/\tau_{a}\label{eq:-39}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+Q_{grav}=I_{3\times3}2\left\Vert \boldsymbol{v}_{\perp}\right\Vert \sigma_{grav}^{2}/d_{g}\label{eq:-40}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+Q_{h}=2\left\Vert \boldsymbol{v}_{\perp}\right\Vert \sigma_{h}^{2}/d_{h}\label{eq:-41}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In order to simulate the process noise, we must add some randomness to the
+ simulation.
+ The 
+\begin_inset Formula $randn$
+\end_inset
+
+ command in Matlab is useful because it will create a normally distributed
+ random value which can synthesize a white noise process.
+ Equation (51) gives the general equation to compute a process noise given
+ the power spectral density.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+w=\sqrt{Q/dt}\cdot randn\label{eq:-42}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this simulation, the steady state variance of each state will be used
+ to initialize the covariance matrix 
+\begin_inset Formula $P.$
+\end_inset
+
+ It is assumed that there is no cross correlation between states, so the
+ covariance matrix will only be non-zero along it's diagonal.
+ Table 3 summarizes the 
+\begin_inset Formula $3\sigma$
+\end_inset
+
+ value for each navigation state.
+ Note, the non-gravitational power spectral density is also defined empirically
+ as the velocity equation was not modeled as an exponentially correlated
+ random variable.
+ Also included is the velocity random walk, which is used to synthesize
+ the measurement process noise.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status collapsed
+
 \begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Values for Simulation of Each Navigation State.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="7" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Name
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Value
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\sigma_{rbias}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1m$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3-sigma rage bias uncertainty 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\sigma_{abias}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1mg$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3-sigma accelerometer bias uncertainty
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\sigma_{grav}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $60\frac{\mu m}{s^{2}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3-sigma gravity bias uncertainty
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\sigma_{h}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $50m$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3-sigma terrain height bias uncertainty
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $vrw$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.06\frac{m}{\frac{s}{\sqrt{hr}}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3-sigma accelerometer velocity random walk
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $Q_{nongrav}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $4.8\times10^{-7}\frac{m^{2}}{s^{3}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3-sigma non-gravitational process noise
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Moving forward, many other simulation parameters must be defined.
+ Table 4 summarizes the initial conditions, which will be randomized to
+ agree with the initial covariance.
+ Then, Appendix A summarizes other important simulation parameters.
+ Note, for the covariance propagation test, the ECRV time constants are
+ set to 1/10 the simulation time in order to observe them changing more
+ rapidly.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Simulation State Initial Conditions
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="15" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+State
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Initial Value
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{x}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $-390km$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{y}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1748km$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{z}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0km$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{x}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.7km/s$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{y}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0km/s$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{z}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0km/s$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $b_{r}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0m$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\epsilon_{x}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0m/s^{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\epsilon_{y}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0m/s^{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\epsilon_{z}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0m/s^{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $h$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0m$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $b_{acclx}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0mg$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $b_{accly}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0mg$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $b_{acclz}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0mg$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With all these parameters defined, we can now propagate the covariance over
+ multiple Monte Carlo runs to show how the covariance behaves.
+ We expect the hair plots to have zero mean and that the ensemble statistics
+ are within the bounds of the 
+\begin_inset Formula $3\sigma$
+\end_inset
+
+ value.
+ Figures (11-13) show the position estimation errors over the Monte Carlo
+ simulation.
+ Although the ensemble stays within the covariance bounds, there seems to
+ be a biased behavior in the y and z position error.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_1__est_err_1.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+X position Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_2__est_err_2.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Y Position Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_3__est_err_3.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Z Position Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figures (14-16) show the velocity estimation errors over the simulation.
+ These velocity plots all stay within the 
+\begin_inset Formula $3\sigma$
+\end_inset
+
+ value and have zero mean, but they converge rapidly to zero towards the
+ end of the simulation.
+ This may be due to the guidance algorithm.
+ Looking at Fig.
+ 7, the velocity in the x direction does not drop to zero sharply during
+ the landing, so it is strange to see the rapid convergence here.
+ This may require additional investigation as to why.
+ Stranger still, is the convergence and then divergence of the velocity
+ in the y direction towards the touchdown of the lander.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_4__est_err_4.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+X Velocity Estimation Error 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_5__est_err_5.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Y Velocity Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_6__est_err_6.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Z Velocity Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Fig.
+ 17 shows the range bias estimation error which seems to resemble white
+ noise.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_7__est_err_7.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Range Bias Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figures (18-20) show the gravity anomaly, or bias, estimation error.
+ The error is bounded and tends to settle off towards the end of the simulation.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_8__est_err_8.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+X Gravity Anomaly Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_9__est_err_9.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Y Gravity Anomaly Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_10__est_err_10.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Z Gravity Anomaly Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Fig.
+ 21 shows the terrain height estimation error.
+ For the simulation, there is no terrain model, so the true terrain height
+ is assumed to be zero for simplicity.
+ Again the error is bounded and zero mean, also it settles off towards the
+ end of the simulation.
+ This is similar to the gravity anomaly which was also and ECRV modeled
+ with a distance correlation coefficient instead of a time constant.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_11__est_err_11.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Terrain Height Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figures (22-24) show the error in the bias of the accelerometer.
+ This ECRV has zero mean and mostly stays within the 
+\begin_inset Formula $3\sigma$
+\end_inset
+
+ limit.
+ The error is also noisy which is expected to a continuous sensor measurement.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_12__est_err_12.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+X Accelerometer Bias Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_13__est_err_13.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Y Accelerometer Bias Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/SYM 12-1/monteCarlo_14__est_err_14.png
+	width 8.5cm
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Z Accelerometer Bias Estimation Error
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Appendix A Simulation Parameters
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Simulation Parameters
+\end_layout
+
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="13" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Parameter
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Value
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $t_{sim}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $550s$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Simulation time
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $dt$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0.25s$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Simulation time step
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\mu$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $4.9\times10^{3}km^{3}/s^{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Lunar gravity constant
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $R_{m}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1737km$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Moon radius
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\omega_{m}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $13.1764deg/day$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Moon rotation rate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\tau_{r}$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $55s$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Range bias time constant
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\tau_{a}$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $55s$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Accelerometer bias time constant
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $d_{g}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1737.5km$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Distance correlation factor in gravity
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $d_{r}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1737.5km$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Distance correlation factor in range
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\boldsymbol{a}_{t_{f}}^{*}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\left[\begin{array}{ccc}
+0 & 1.62 & 0\end{array}\right]^{T}m/s^{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Desired acceleration at the final time
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\boldsymbol{v}_{t_{f}}^{*}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\left[\begin{array}{ccc}
+0 & -1 & 0\end{array}\right]^{T}m/s$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Desired acceleration at the final time
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\boldsymbol{r}_{t_{f}}^{*}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\left[\begin{array}{ccc}
+0 & 1738 & 0\end{array}\right]^{T}m$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Desired acceleration at the final time
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
 
 \end_layout
 
