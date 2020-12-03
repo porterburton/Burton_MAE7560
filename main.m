@@ -24,7 +24,7 @@ savefile.filename = filename;
 checkProp = 0;
 runSingleMonteCarlo = 0;
 runMonteCarlo = 1;
-savefigs = 1;
+savefigs = 0;
 [ simpar, ~ ] = createSimParams( paramfile );
 %% Ensure certain flags are not enabled for certain runs
 if simpar.general.measLinerizationCheckEnable
