@@ -27,7 +27,8 @@ ytilde_buff     = zeros(simpar.general.n_inertialMeas,nstep);
 % Residual buffers (star tracker is included as an example)
 %%%5res_example          = zeros(3,nstep_aid);
 %%%%resCov_example       = zeros(3,3,nstep_aid);
-K_example_buff = zeros(simpar.states.nxfe,3,nstep_aid);
+los_resCov = zeros(2,2,nstep_aid);
+K_buff = zeros(simpar.states.nxfe,2,nstep_aid);
 los_res = zeros(2, nstep_aid);
 %% Initialize the navigation covariance matrix
 P_buff(:,:,1) = initialize_covariance(simpar);
@@ -87,7 +88,7 @@ for i=2:nstep
     Q_g = 2*norm(v_perp)*simpar.truth.params.sig_grav_ss^2/simpar.general.d_g;
     w_g = sqrt(Q_g/simpar.general.dt).*randn(3,1);
     
-    w_a = sqrt(simpar.truth.params.Q_nongrav/simpar.general.dt).*randn(3,1);
+    w_a = sqrt(simpar.truth.params.Q_nongrav/simpar.general.dt)*randn(3,1);
     w_r = sqrt(Q_rbias/simpar.general.dt)*randn;
     
     Q_h = 2*norm(v_perp)*simpar.truth.params.sig_h_ss^2/simpar.general.d_h;
@@ -157,7 +158,18 @@ for i=2:nstep
         %       Correct and save the navigation states
         [los_ztilde, r_fi] = los.synth_measurement(x_buff(:,i),simpar);
         los_ztildehat = los.pred_measurement(xhat_buff(:,i),r_fi,simpar);
+        
+        H = los.get_H(x_buff(:,i), xhat_buff(:,i), simpar);
         los_res(:,k) = los_ztilde-los_ztildehat; %COMPUTE LOS RESIDUAL
+        R = los.get_R(x_buff(:,i), H, simpar);
+        los_resCov(:,:,k) = los.compute_residual_cov(H,P_buff(:,:,i),R);
+        K_buff(:,:,k) = compute_Kalman_gain(P_buff(:,:,i), H, los_resCov(:,:,k), simpar.general.processLOSEnable);
+        delx_buff(:,i) = K_buff(:,:,k)*los_res(:,k);
+        P_buff(:,:,k) = update_covariance(K_buff(:,:,k), H, P_buff(:,:,i), R, simpar);
+        xhat_buff(:,i) = correctErrors(xhat_buff(:,i),delx_buff(:,i),simpar);
+        
+        
+        
        
         
 %         H_example = example.compute_H();
@@ -188,7 +200,7 @@ end
 T_execution = toc;
 %Package up residuals
 navRes.los = los_res;
-navResCov.los = 1;
+navResCov.los = los_resCov;
 kalmanGains.los = 1;
 %kalmanGains.example = K_example_buff;
 %Package up outputs

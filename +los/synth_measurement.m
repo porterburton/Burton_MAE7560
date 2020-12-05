@@ -24,6 +24,7 @@ lx = lc(1);
 ly = lc(2);
 lz = lc(3);
 
-nu_c = 0; %Camera noise (needs better definition) [will use diag]
+
+nu_c = sqrt(1/simpar.general.dt)*randn(2,1); %Camera noise (needs better definition)
 z_tilde = [lx/lz;ly/lz]+nu_c;
 end

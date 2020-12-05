@@ -125,5 +125,34 @@ xlabel('time(s)');
 ylabel('m/s');
 legend('x_i','y_i','z_i')
 grid on;
-%% Add the remaining estimation error plots
+%% Plot Range Bias Eroor
+h_figs(end+1) = figure;
+stairs(traj.time_nav, dele(simpar.states.ixfe.br,:)');
+title('Range Bias Error');
+xlabel('time(s)');
+ylabel('m');
+grid on;
+%% Plot GravBias error
+h_figs(end+1) = figure;
+stairs(traj.time_nav, dele(simpar.states.ixfe.gbias,:)');
+title('Gravity Bias Error');
+xlabel('time(s)');
+ylabel('m/s^2');
+legend('x','y','z')
+grid on;
+%% Plot Terrain Height Error
+h_figs(end+1) = figure;
+stairs(traj.time_nav, dele(simpar.states.ixfe.h,:)');
+title('Terrain Height Error');
+xlabel('time(s)');
+ylabel('m');
+grid on;
+%% Plot AcclBias error
+h_figs(end+1) = figure;
+stairs(traj.time_nav, dele(simpar.states.ixfe.ba,:)');
+title('Accelerometer Bias Error');
+xlabel('time(s)');
+ylabel('mg');
+legend('x','y','z')
+grid on;
 end

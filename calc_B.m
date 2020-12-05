@@ -9,7 +9,7 @@ function [ B ] = calc_B(xhat, simpar )
 %   G = process noise dynamic coupling matrix
 %
 % Example Usage
-% [ G ] = calc_G( xhat, simpar )
+% [ B ] = calc_B( xhat, simpar )
 
 % Author: Randy Christensen
 % Date: 13-May-2020
