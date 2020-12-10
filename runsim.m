@@ -168,8 +168,9 @@ for i=2:nstep
         R = los.get_R(x_buff(:,i), H, simpar);
         los_resCov(:,:,k) = los.compute_residual_cov(H,P_buff(:,:,i),R);
         K_buff(:,:,k) = compute_Kalman_gain(P_buff(:,:,i), H, los_resCov(:,:,k), simpar.general.processLOSEnable);
+        K_buff(simpar.states.ixfe.ba,:,k) = K_buff(simpar.states.ixfe.ba,:,k);
         delx_buff(:,i) = K_buff(:,:,k)*los_res(:,k);
-        P_buff(:,:,k) = update_covariance(K_buff(:,:,k), H, P_buff(:,:,i), R, simpar);
+        P_buff(:,:,i) = update_covariance(K_buff(:,:,k), H, P_buff(:,:,i), R, simpar);
         xhat_buff(:,i) = correctErrors(xhat_buff(:,i),delx_buff(:,i),simpar);
         
         
