@@ -114,7 +114,7 @@ The truth state for the navigation system fully describes the dynamics and
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -1590,7 +1590,7 @@ F=\frac{df(\boldsymbol{x},\boldsymbol{u})}{d\boldsymbol{x}}\mid_{\boldsymbol{x}=
 \begin{equation}
 F=\left[\begin{array}{cccccc}
 \boldsymbol{0} & I_{3} & \boldsymbol{0} & \boldsymbol{0} & \boldsymbol{0} & \boldsymbol{0}\\
-\frac{-\mu}{\left\Vert \boldsymbol{\hat{r}}\right\Vert ^{3}}(I_{3}-3i_{r}i_{r}^{T}) & \boldsymbol{0} & \boldsymbol{0} & I_{3} & \boldsymbol{0} & \boldsymbol{0}\\
+\frac{-\mu}{\left\Vert \boldsymbol{\hat{r}}\right\Vert ^{3}}(I_{3}-3i_{r}i_{r}^{T}) & \boldsymbol{0} & \boldsymbol{0} & I_{3} & \boldsymbol{0} & -T_{i}^{b}\\
 \boldsymbol{0} & \boldsymbol{0} & \frac{-1}{\tau_{r}} & \boldsymbol{0} & \boldsymbol{0} & \boldsymbol{0}\\
 \boldsymbol{0} & \boldsymbol{0} & \boldsymbol{0} & \frac{\left\Vert \boldsymbol{\hat{v}_{\perp}}\right\Vert }{d_{g}}I_{3} & \boldsymbol{0} & \boldsymbol{0}\\
 \boldsymbol{0} & \boldsymbol{0} & \boldsymbol{0} & \boldsymbol{0} & \frac{\left\Vert \boldsymbol{\hat{v}_{\perp}}\right\Vert }{d_{h}} & \boldsymbol{0}\\
@@ -2401,7 +2401,7 @@ Now, H is defined by (37).
 \begin{equation}
 H=\left[\begin{array}{ccc}
 1/\hat{\ell}_{z} & 0 & -\hat{\ell}_{x}/\hat{\ell}_{z}^{2}\\
-0 & 1/\hat{\ell} & -\hat{\ell}_{y}/\hat{\ell}_{z}^{2}
+0 & 1/\hat{\ell}_{z} & -\hat{\ell}_{y}/\hat{\ell}_{z}^{2}
 \end{array}\right]\left[\begin{array}{cc}
 -T_{b}^{c}T_{i}^{b}I_{3} & 0_{3x11}\end{array}\right]\label{eq:-34}
 \end{equation}
@@ -3425,8 +3425,8 @@ With all these parameters defined, we can now propagate the covariance over
  value.
  Figures (11-13) show the position estimation errors over the Monte Carlo
  simulation.
- Although the ensemble stays within the covariance bounds, there seems to
- be a biased behavior in the y and z position error.
+ Without any state corrections the error in position grows to about 1000
+ m in all directions.
  
 \end_layout
 
@@ -3526,16 +3526,13 @@ Figures (14-16) show the velocity estimation errors over the simulation.
 \begin_inset Formula $3\sigma$
 \end_inset
 
- value and have zero mean, but they converge rapidly to zero towards the
- end of the simulation.
- This may be due to the guidance algorithm.
- Looking at Fig.
- 7, the velocity in the x direction does not drop to zero sharply during
- the landing, so it is strange to see the rapid convergence here.
- This may require additional investigation as to why.
- Stranger still, is the convergence and then divergence of the velocity
- in the y direction towards the touchdown of the lander.
- 
+ value and have zero mean.
+ The velocity errors in the x and z directions start to shrink as the lander
+ velocities converge to zero in these directions as determined by the guidance
+ law.
+ The velocity in the y direction grows slightly towards the end of the simulatio
+n, this may be because the guidance law commands a non zero touchdown velocity
+ of 1 m/s in the y direction.
 \end_layout
 
 \begin_layout Standard

@@ -13,7 +13,7 @@ nav_errors = calcErrors( navState, traj.truthState, simpar );
 h_figs = [];
 
 %% LOS residuals
-if simpar.general.processVisualOdometryEnable
+if simpar.general.processLOSEnable
     axis_str = {'$\ell_x/\ell_z$','$\ell_y/\ell_z$'};
     for i=1:2
         h_figs(end+1) = figure('Name',sprintf('res_LOS_%d',i)); %#ok<*AGROW>

@@ -1,13 +1,11 @@
-function[z_tilde,r_fi] = synth_measurement(x,simpar)
+function[z_tilde,r_fi] = synth_measurement(x,simpar,Ti2b)
 r_bi = x(simpar.states.ix.pos);
 R_moon = simpar.general.r_moon;
 
 %Inertial to body
-Ti2b = calc_attitude(x, simpar);
 qi2b = tmat2q(Ti2b);
 %Inertial to moon (NOT NEEDED FOR NOW)
 qi2m = x(simpar.states.ix.att);
-Ti2m = q2tmat(qi2m);
 %Body to camera frame
 qb2c = x(simpar.states.ix.cam_att);
 Tb2c = q2tmat(qb2c);
@@ -25,6 +23,7 @@ ly = lc(2);
 lz = lc(3);
 
 
-nu_c = sqrt(1/simpar.general.dt)*randn(2,1); %Camera noise (needs better definition)
+%Camera Noise
+nu_c = simpar.truth.params.sig_los*randn(2,1);
 z_tilde = [lx/lz;ly/lz]+nu_c;
 end

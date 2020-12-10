@@ -1,4 +1,4 @@
-function [ P_dot ] = navCov_de( P, input )
+function [ P_dot ] = navCov_de( P, input)
 %navCov_de computes the derivative of the nav state covariance
 %
 % Inputs:
@@ -17,17 +17,16 @@ function [ P_dot ] = navCov_de( P, input )
 % Copyright 2019 Utah State University
 
 %Unpack the inputs for clarity
-xt = input.xt;
+Ti2b = input.T_i2b;
 xhat = input.xhat;
 simpar = input.simpar;
-ytilde = input.ytilde;
 v_perp = input.v_perp;
 
 %Compute state dynamics matrix
-F = calc_F(xhat, ytilde, simpar);
+F = calc_F(xhat, Ti2b, simpar);
 
 %Compute process noise coupling matrix
-B = calc_B(xhat, simpar);
+B = calc_B(simpar, Ti2b);
 
 %Compute process noise PSD matrix Q
 Q_a = 2*simpar.nav.params.Q_nongrav*eye(3);

@@ -1,9 +1,8 @@
-function [H] = get_H(xt, xhat, simpar)
+function [H] = get_H(xt, xhat, simpar, Ti2b)
 
 %prelims
 qb2c = simpar.general.q_b2c_nominal;
 Tb2c = q2tmat(qb2c);
-Ti2b = calc_attitude(xt, simpar);
 qi2b = tmat2q(Ti2b);
 
 r_bi = xt(simpar.states.ix.pos);

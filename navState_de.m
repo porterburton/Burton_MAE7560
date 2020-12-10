@@ -20,7 +20,7 @@ function xhatdot = navState_de(xhat,input)
 simpar = input.simpar;
 v_perp = input.v_perp;
 mu = simpar.general.mu;
-T_i2b = calc_attitude(xhat, simpar);
+T_i2b = input.T_i2b;
 T_b2i = T_i2b'; %Need body to inertial for velocity (in inertial)
 
 r = xhat(simpar.states.ixf.pos);

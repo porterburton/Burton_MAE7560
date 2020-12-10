@@ -1,4 +1,4 @@
-function [ B ] = calc_B(xhat, simpar )
+function [ B ] = calc_B(simpar,Ti2b)
 %calc_G Calculates the process noise dynamic coupling matrix
 %
 % Inputs:
@@ -17,7 +17,6 @@ function [ B ] = calc_B(xhat, simpar )
 % Copyright 2020 Utah State University
 
 %% Preliminary Calcs
-Ti2b = calc_attitude(xhat, simpar);
 Tb2i = Ti2b';
 n = simpar.states.nxfe;
 B = zeros(n,11); %Magic Number (number of driving noise values)

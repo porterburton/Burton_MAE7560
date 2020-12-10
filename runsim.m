@@ -1,4 +1,4 @@
-function [traj] = runsim(simpar, verbose, seed)
+    function [traj] = runsim(simpar, verbose, seed)
 rng(seed);
 %RUNSIM Runs a single trajectory given the parameters in simparams
 tic;
@@ -47,9 +47,10 @@ xhat_buff(:,1) = initialize_nav_state(simpar, x_buff(:,1));
     g = [0;0;1.6242]; %Wont be used in apollo guidance
 a_t(:,1) = guidance(r, v, af, vf, rf, tgo, g, 'apollo');
 
+
 % Synthesize continuous sensor data at t_n-1
 wa_0 = sqrt(simpar.truth.params.Q_nongrav/simpar.general.dt)*randn(3,1);
-ytilde_buff(:,1) = contMeas(x_buff(:,1), a_t(:,1), wa_0, simpar);
+%(Not used)ytilde_buff(:,1) = zeros(3,1); 
 %Initialize the measurement counter
 k = 1;
 %Check that the error injection, calculation, and removal are all
@@ -104,11 +105,13 @@ for i=2:nstep
     
     x_buff(:,i) = rk4('truthState_de', x_buff(:,i-1), input_truth,...
         simpar.general.dt);
-    % Synthesize continuous sensor data at t_n
-    ytilde_buff(:,i) = contMeas(x_buff(:,i),a_t(:,i-1),w_a,simpar);
     % Propagate navigation states to t_n using sensor data from t_n-1
+    T_i2b = calc_attitude(x_buff(:,i-1), simpar); %Calc attitude just once to avoid integration errors
+    % Synthesize continuous sensor data at t_n
+    ytilde_buff(:,i) = contMeas(x_buff(:,i),a_t(:,i-1),w_a,simpar,T_i2b);    
     %   Assign inputs to the navigation state DE
     %   Perform one step of RK4 integration
+    input_nav.T_i2b = T_i2b;
     input_nav.ytilde = ytilde_buff(:,i);
     input_nav.v_perp = v_perp;
     input_nav.simpar = simpar;
@@ -117,15 +120,15 @@ for i=2:nstep
     % Propagate the covariance to t_n
     input_cov.ytilde = ytilde_buff(:,i);
     input_cov.simpar = simpar;
-    input_cov.xt = x_buff(:,i-1);
     input_cov.xhat = xhat_buff(:,i-1);
     input_cov.v_perp = v_perp;
+    input_cov.T_i2b = T_i2b;
     P_buff(:,:,i) = rk4('navCov_de', P_buff(:,:,i-1), input_cov,simpar.general.dt);
     % Propagate the error state from tn-1 to tn if errorPropTestEnable == 1
     format long
     if simpar.general.errorPropTestEnable
         input_delx.xhat = xhat_buff(:,i-1);
-        input_delx.ytilde = [];
+        input_delx.Ti2b = T_i2b;
         input_delx.simpar = simpar;
         delx_buff(:,i) = rk4('errorState_de', delx_buff(:,i-1), ...
             input_delx, simpar.general.dt);
@@ -156,10 +159,11 @@ for i=2:nstep
         %       Estimate the error state vector
         %       Update and save the covariance matrix
         %       Correct and save the navigation states
-        [los_ztilde, r_fi] = los.synth_measurement(x_buff(:,i),simpar);
-        los_ztildehat = los.pred_measurement(xhat_buff(:,i),r_fi,simpar);
+        [los_ztilde, r_fi] = los.synth_measurement(x_buff(:,i),simpar, T_i2b);
+        los_ztildehat = los.pred_measurement(xhat_buff(:,i),r_fi,simpar, T_i2b);
         
-        H = los.get_H(x_buff(:,i), xhat_buff(:,i), simpar);
+        %This Block Causes Problems...
+        H = los.get_H(x_buff(:,i), xhat_buff(:,i), simpar, T_i2b);
         los_res(:,k) = los_ztilde-los_ztildehat; %COMPUTE LOS RESIDUAL
         R = los.get_R(x_buff(:,i), H, simpar);
         los_resCov(:,:,k) = los.compute_residual_cov(H,P_buff(:,:,i),R);
@@ -187,7 +191,7 @@ for i=2:nstep
     v = x_buff(simpar.states.ix.vel,i);
     tgo = simpar.general.tsim-t(i);
     a_t(:,i) = guidance(r, v, af, vf, rf, tgo, g, 'apollo');
-    
+ 
     if verbose && mod(i,100) == 0
         fprintf('%0.1f%% complete\n',100 * i/nstep);
     end
@@ -201,7 +205,7 @@ T_execution = toc;
 %Package up residuals
 navRes.los = los_res;
 navResCov.los = los_resCov;
-kalmanGains.los = 1;
+kalmanGains.los = K_buff;
 %kalmanGains.example = K_example_buff;
 %Package up outputs
 traj = struct('navState',xhat_buff,...
