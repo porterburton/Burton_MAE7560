@@ -34,4 +34,18 @@ for i=1:n
     ylabel(ylabels{i})
 end
 
+figure
+xError = squeeze(errors(1,end,:));
+yError = squeeze(errors(2,end,:));
+zError = squeeze(errors(3,end,:));
+
+
+plot(xError, zError, 'r*');
+hold on
+plot(0,0, 'bo', 'MarkerSize', 12);
+xlabel('x (m)')
+ylabel('z (m)')
+legend('MonteCarlo Runs', 'Target Landing Site')
+axis 'equal'
+title('Landing Site Errors')
 end
