@@ -79,11 +79,123 @@
 \begin_body
 
 \begin_layout Title
-Lunar Lander Documentation 
+Estimation System Design for a Low Cost Lunar Lander Using Line of Sight
+ Camera Measurements 
 \end_layout
 
 \begin_layout Author
 Porter Burton
+\end_layout
+
+\begin_layout Title
+Utah State University, Department of Mechanical and Aerospace Engineering
+\end_layout
+
+\begin_layout Abstract
+This report documents the design process for a Lunar lander estimation system
+ using camera and accelerometer measurements.
+ Using the model developed, a simulation is presented which shows the capability
+ of the system.
+ Camera measurements of known Lunar features aid in correcting state estimation
+ errors.
+ The results show, the lander is able to navigate accurately using minimal
+ sensors to a predetermined landing site.
+ The limitations and assumptions in this design are presented and discussed.
+ The method in this report is to serve as an outline for future Kalman filter
+ designs.
+ 
+\end_layout
+
+\begin_layout Section
+Introduction 
+\end_layout
+
+\begin_layout Standard
+As more space exploration agencies look towards planetary exploration, the
+ need for cost reduction is paramount.
+ Significant cost drivers in planetary landers come from the navigation
+ system.
+ Traditional navigational sensor suites include multiple sensing modalities,
+ actuators, and redundant systems.
+ Elimination of these redundancies for powered terminal descent will lower
+ costs for landers and allow for more missions.
+ Research contribution is needed to further explore the possibilities for
+ a safe and efficient lander with a simplified set of sensors.
+ A radar altimeter and single monocular camera is perhaps the simplest set
+ of sensors when paired with an inertial measurement unit (IMU).
+ In a new era of competitive space exploration, the need for cost reduction
+ has never been more appropriate.
+ 
+\end_layout
+
+\begin_layout Standard
+Traditionally, GPS has been the go-to approach for accurate, low-cost navigation.
+ However, GPS is not always available or necessary.
+ Especially in Lunar or Mars missions, GPS is not reliable or available.
+ Navigational systems using a monocular camera have been shown to provide
+ accurate results comparable to inertial-GPS System [1].
+ Optical odometry has been a large area of recent work.
+ Another recent development of optical estimation is the ATON (Autonomous
+ Terrain-based Optical Navigation) project [2].
+ In the ATON project new methods to process and fuse sensor data has been
+ developed using a modern extended Kalman filter.
+ Again, in the ATON project, terrain based optical methods were able to
+ produce results comparable to GPS data.
+ Typical landers often include sensors such as star trackers, velocimeters,
+ doppler and radio sensors [3],[4], [9].
+ These sensors have been shown to provide accurate and robust aid to GN&C
+ applications.
+ However, the cost of such systems becomes a limiting factor to planetary
+ missions.
+\end_layout
+
+\begin_layout Standard
+Although state of the art navigation systems have been developed, systems
+ using minimal sensors require more investigation for practical applications.
+ Of course, a monocular camera is not sufficient on its own.
+ The range measurements from a radar altimeter have been shown to reduce
+ the estimation error of a camera’s line of sight measurements to known
+ landmarks [4].
+ In particular, the radar altimeter can be used to correct drift in optical
+ measurements.
+ Recent work also shows the validity and accuracy of using radar for altitude
+ when calibrated correctly [5][6].
+ A similar theme in recent work is the use of Monte Carlo analysis, which
+ uses quantitative risk management techniques, and Linear Covariance models.
+ These modern methods are state of the art and will be implemented in the
+ proposed work.
+ Navigation works hand in hand with guidance, and control systems.
+ To demonstrate a low-cost navigation system, guidance and control models
+ will also be needed.
+ Guidance algorithms tell the space craft where it should be, and D’Souza
+ is a pioneer of modern guidance.
+ D’Souza gives an analytical guidance law that can easily be utilized for
+ planetary landing [7].
+ Kriegsman and Reiss also provide pioneering work in guidance and control
+ for soft Lunar landings [8].
+ Although somewhat dated, the simple methods they present using acceleration
+ control provide useful utilities to compliment a navigation system as guidance
+ is not the focus of the proposed work.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Proposed Contribution
+\end_layout
+
+\begin_layout Standard
+The proposed contribution to this work will focus on developing a low-cost
+ navigation system for Lunar, powered, terminal decent using a minimal set
+ of sensors.
+ This report takes on the implementation of the monocular camera, which
+ will compute line of sight (LOS) measurements to Lunar features such as
+ craters or mountains.
+ An extended Kalman filter is developed to process camera and accelerometer
+ measurements to correct the estimated states of a Lunar lander during descent
+ and landing.
+ Future work will be required to implement radar altimeter and gyro instruments
+ as the main focus of this report will be filter design and camera measurements.
+ 
 \end_layout
 
 \begin_layout Section
@@ -98,15 +210,16 @@ Truth State
 The truth state for the navigation system fully describes the dynamics and
  processes of the lunar lander.
  The truth state variables are carefully selected to capture the scope of
- this design which focuses on the use of an optical camera and radar altimeter.
+ this design which focuses on the use of an optical camera and inertial
+ accelerometer.
  There are four important coordinate systems for this simulation: an inertial
  frame whose origin is at the moons center of mass, a moon frame which rotates
  with the moon and whose origin is coincident with the inertial frame, a
  body frame fixed to the lander, and a camera frame which represents the
  rotation to the on board camera.
- The inertial and fixed Lunar frames are illustrated in fig(1) where the
- principle axis of the inertial Lunar frame points towards the 1st point
- of Ares.
+ The inertial and fixed Lunar frames are illustrated in Fig.
+ 1, where the principle axis of the inertial Lunar frame points towards
+ the 1st point of Ares.
  The fixed, or moon, frame rotates with the moon
 \end_layout
 
@@ -145,9 +258,12 @@ Inertial and Fixed Lunar Coordinate Frames
 \end_layout
 
 \begin_layout Standard
-The body and camera frames are illustrated in fig(2).
- In the body frame, the z axis is aligned with the thrust direction and
- in the camera frame the z axis is aligned with the camera's line of sight.
+The body and camera frames are illustrated in Fig.
+ 2.
+ In the body frame, the y axis is aligned opposite to the thrust direction
+ and in the camera frame the z axis is aligned with the camera's line of
+ sight.
+ Both these frames are right hand coordinate systems, as shown in the diagram.
  
 \end_layout
 
@@ -155,7 +271,7 @@ The body and camera frames are illustrated in fig(2).
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -204,8 +320,8 @@ The truth state vector is given by (1).
 \begin_inset Formula $q_{i}^{m}$
 \end_inset
 
- is a quaternion which represents the attitude rotation of the lander in
- the moon frame.
+ is a quaternion which represents the transformation from the inertial frame
+ to the moon frame, which rotates about the inertial frame.
 \begin_inset Formula $q_{b}^{c}$
 \end_inset
 
@@ -246,8 +362,8 @@ h_{t}\\
 \end_layout
 
 \begin_layout Standard
-The first three states of the truth state vector, position, velocity, and
- orientation, will be the vehicle states.
+The first two states of the truth state vector, position and velocity, will
+ be the vehicle states.
  Note, angular rate is not included because we assume there will only by
  small and slow changes in attitude.
  Also gyro bias is not included to further simply the problem.
@@ -261,10 +377,11 @@ Design, Navigation, and Error States
 \end_layout
 
 \begin_layout Standard
-The design state vector describes the state the we will ask the Kalman filter
- to estimate.
- We will remove the attitude of the vehicle, and the rotation to the camera
+The design state vector describes the state that we will ask the Kalman
+ filter to estimate.
+ We will remove the rotation of the moon, and the rotation to the camera
  because these states can be determined outside of the navigation system.
+ We assume the attitude of the lander is well known.
  Additionally, removing the quaternion quantities greatly simplifies the
  mathematics when computing the error state.
  We also remove the position to a feature of interest because we can calculate
@@ -342,7 +459,7 @@ The error state vector will be used to store calculated errors in our system.
 
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection*
 State Mapping
 \end_layout
 
@@ -415,11 +532,11 @@ h_{t}\\
 
 \begin_layout Standard
 Equation (7) computes the estimation errors.
- This function must be verified to ensure is produces the error state 
+ This function must be verified to ensure is produces the error state, 
 \begin_inset Formula $\boldsymbol{\delta x}$
 \end_inset
 
- which was previously defined.
+, which was previously defined.
  
 \end_layout
 
@@ -457,7 +574,7 @@ Finally, we need a mapping to extract the design states from the truth state
 \series bold
 0 
 \series default
-represents a matrix of zeros.
+represents am appropriate matrix of zeros.
  
 \end_layout
 
@@ -465,9 +582,9 @@ represents a matrix of zeros.
 \begin_inset Formula 
 \begin{equation}
 \boldsymbol{x}=m(\boldsymbol{x_{t}})=\left[\begin{array}{ccc}
-I_{6x6} & 0 & 0\\
-0 & 0_{8x8} & 0\\
-0 & 0 & I_{8x8}
+I_{6\times6} & \boldsymbol{0} & \boldsymbol{0}\\
+\boldsymbol{0} & 0_{8\times8} & \boldsymbol{0}\\
+\boldsymbol{0} & \boldsymbol{0} & I_{8\times8}
 \end{array}\right]\left[\begin{array}{c}
 \boldsymbol{r}_{b/i}^{i}\\
 \boldsymbol{v}_{b/i}^{i}\\
@@ -501,8 +618,9 @@ The mappings are verified using a Matlab simulation.
 
 .
  This proves the mapping functions are functional.
- Fig (3) shows transient values of these states after they we able to pass
- the tolerance asserts in checkErrorDefConsistency.m in the provided script.
+ Fig.
+ 3 shows transient values of these states after they we able to pass the
+ tolerance asserts in checkErrorDefConsistency.m in the provided script.
  Is is seen, the corrected state matches the input state before errors were
  injected.
 \end_layout
@@ -545,7 +663,7 @@ Error Injection, Calculation, and Correction Comparison
 \end_layout
 
 \begin_layout Section
-State Propagation 
+Nonlinear State Propagation 
 \end_layout
 
 \begin_layout Subsection*
@@ -560,24 +678,25 @@ We now must define the differential equations for the truth state so that
  The derivative of position is simply velocity, and the derivative of velocity
  is expressed using a sum of accelerations on the body.
  The thrust acceleration is given by 
-\begin_inset Formula $a_{thr}$
+\begin_inset Formula $\boldsymbol{a}_{thr}$
 \end_inset
 
 , and accelerations from gravity are given by 
-\begin_inset Formula $a_{grav}$
+\begin_inset Formula $\boldsymbol{a}_{grav}$
 \end_inset
 
- which is given by (11).
+, which is given by (11).
  A process noise 
-\begin_inset Formula $w_{a}$
+\begin_inset Formula $\boldsymbol{w}_{a}$
 \end_inset
 
  is also included in the sum of acceleration components.
  Thrust acceleration must be generated by a guidance algorithm and will
  be modeled in the truth state.
- A simple guidance algorithm is given by (12) which was used for the Apollo
+ A simple guidance algorithm is given by (12), which was used for the Apollo
  missions.
- Note, to determine a realistic landing trajectory the value of 
+ Note, to determine a realistic landing trajectory.
+ the value of 
 \begin_inset Formula $t_{go}$
 \end_inset
 
@@ -597,6 +716,8 @@ We now must define the differential equations for the truth state so that
 
  must be specified at the final time and control how and where the lander
  will touchdown.
+ In this simulation the landing sequence is 550 s long.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -644,13 +765,13 @@ We now must define the differential equations for the truth state so that
 \end_layout
 
 \begin_layout Standard
-Next we define the equations related to rotations, which are quaternion
+Next, we define the equations related to rotations, which are quaternion
  equations.
  We must include the angular velocity of the moon's rotation to compute
  the rate of change of the moon quaternion.
  We also assume the camera is fixed to the body so the rate of change of
  the camera quaternion is zero.
- Equations (13-15) summarize the propagation of these state using quaternion
+ Equations (13-15) summarize the propagation of these states using quaternion
  mathematics.
  Note, in order to compute the quaternion multiplication, 
 \begin_inset Formula $\boldsymbol{\omega}_{m/i}^{m}$
@@ -746,7 +867,11 @@ The bias states are modeled as exponentially correlated random variables
 The last two states are the gravity error model and the height of the terrain.
  A perpendicular velocity term is included in both these equations in order
  to realize the correct units.
- This is the lateral velocity of the lander, or the velocity in the direction
+ 
+\begin_inset Formula $\boldsymbol{v}_{\perp}$
+\end_inset
+
+is the lateral velocity of the lander, or the velocity in the direction
  parallel to the Lunar surface.
  Each term also includes process noise and a distance correlation factor
  
@@ -810,11 +935,11 @@ Measurement Models
 The truth states are now fully defined, however we also need a truth sensor
  model.
  The sensors modeled are an accelerometer and an optical camera.
- It is now convenient to define an acceleration term for non-gravitational
- terms which will be called 
+ It is now convenient to define an inertial acceleration term for non-gravitatio
+nal accelerations which will be called 
 \series bold
 
-\begin_inset Formula $a$
+\begin_inset Formula $\boldsymbol{a}^{i}$
 \end_inset
 
 .
@@ -853,8 +978,8 @@ The accelerometer is then modeled with a bias and noise term in (23).
 \end_layout
 
 \begin_layout Standard
-The camera measure model is more complex, Fig(4) shows vectors which help
- visualize how the model is constructed.
+The camera measurement model is more complex, Fig.
+ 4 shows vectors which help visualize how the model is constructed.
 \end_layout
 
 \begin_layout Standard
@@ -925,7 +1050,7 @@ Now, the line of sight vector,
 \begin_layout Standard
 With the line of sight vector defined, the camera measurement model is given
  by (25) which includes a noise term 
-\begin_inset Formula $v_{c}$
+\begin_inset Formula $\boldsymbol{v}_{c}$
 \end_inset
 
 .
@@ -937,7 +1062,7 @@ With the line of sight vector defined, the camera measurement model is given
 \boldsymbol{\tilde{z}}=\left[\begin{array}{c}
 \frac{\ell_{x}}{\ell_{z}}\\
 \frac{\ell_{y}}{\ell_{z}}
-\end{array}\right]+v_{c}\label{eq:-22}
+\end{array}\right]+\boldsymbol{v}_{c}\label{eq:-22}
 \end{equation}
 
 \end_inset
@@ -954,7 +1079,8 @@ Now that the truth model is defined we will define the design and navigation
  state equations.
  The design state model can easily be determined from the truth state model
  and is show by (26).
- the design model has the same states as the navigation states.
+ the design model has the same states as the navigation states and included
+ driving process noise terms.
 \end_layout
 
 \begin_layout Standard
@@ -984,8 +1110,8 @@ Now that the truth model is defined we will define the design and navigation
 
 \begin_layout Standard
 For the navigation state, the accelerometer sensor data will be used to
- estimate non-gravitational accelerations.
- and noise terms are dropped from the truth state.
+ estimate non-gravitational accelerations, and noise terms are dropped from
+ the design state.
  A summary of the navigation state propagation is given by (27).
 \end_layout
 
@@ -1069,7 +1195,7 @@ Solving for the true accelerations yields (30), where
 
 \end_inset
 
-Substitute into the design model
+Substituting into the design model
 \begin_inset Formula 
 \begin{equation}
 \boldsymbol{\dot{x}}=\left[\begin{array}{c}
@@ -1091,7 +1217,7 @@ T_{b}^{i}\left(\tilde{\boldsymbol{a}}^{b}-\boldsymbol{b}_{a}-\boldsymbol{n}_{a}\
 
 \end_inset
 
-Rearranging the velocity equation yields
+Then, rearranging the velocity equation yields
 \end_layout
 
 \begin_layout Standard
@@ -1102,11 +1228,16 @@ Rearranging the velocity equation yields
 
 \end_inset
 
-The dynamics are now driven by random a random process noise vector, 
+The dynamics are now driven by a random process noise vector, 
 \begin_inset Formula $\boldsymbol{w}$
 \end_inset
 
-, Rearranging more yields
+ where 
+\begin_inset Formula $B$
+\end_inset
+
+ is the process noise coupling matrix.
+ Rearranging more yields
 \begin_inset Formula 
 \begin{equation}
 \boldsymbol{\dot{x}}=\left[\begin{array}{c}
@@ -1172,7 +1303,7 @@ Thus far, we have not included any linearization, co-variance, or Kalman
  updates to our simulation.
  We simply, want to demonstrate the state propagation with synthesized measureme
 nts in the navigation state.
- With no process noise, we can model the truth state to be ideal, based
+ With no process noise, we can model the design state to be ideal, based
  on dynamic equations, and compare how the navigation state of the lander
  compares to the truth.
  We can also use the navigation state to predict nonlinear measurements
@@ -1185,8 +1316,8 @@ nts in the navigation state.
 \begin_inset Formula $t_{go}$
 \end_inset
 
- is set to 550 s in order to generate a good trajectory with the sample
- initial conditions.
+ is initialized to 550 s in order to generate a good trajectory with the
+ sample initial conditions.
 \end_layout
 
 \begin_layout Standard
@@ -1199,7 +1330,7 @@ For simplicity, the trajectory for this lander simulation is held in the
  10km.
  A feature is synthesize in the center of the cameras view to generate LOS
  measurements.
- The trajectory of the lander is shown in Fig(5).
+ The trajectory of the lander is shown in Fig 5.
 \end_layout
 
 \begin_layout Standard
@@ -1240,11 +1371,11 @@ Lunar Lander Trajectory
 \end_layout
 
 \begin_layout Standard
-The thrust accelerations, generated by the guidance law are shown in fig(6),
- note the sudden cutoff in thrust at the end of the simulation.
+The thrust accelerations, generated by the guidance law are shown in Fig,
+ 6, note the sudden cutoff in thrust at the end of the simulation.
  This means to achieve the desired touchdown velocity and acceleration,
- the lander had to touch down while still thrusting.
- Also, fig(7) shows the velocity of the lander converging to the desired
+ the lander has to touch down while still thrusting.
+ Also, Fig 7 shows the velocity of the lander converging to the desired
  values.
 \end_layout
 
@@ -1323,9 +1454,11 @@ Truth State Velocity
 \end_layout
 
 \begin_layout Standard
-We see, with no state correction the navigation state is able to predict
- the true states, but the values begin to drift as the simulation runs longer.
- Fig(8) shows the error in the position states for the landing burn.
+We see, with no state correction or process noise, the navigation state
+ is able to predict the true states, but the values begin to drift as the
+ simulation runs longer.
+ Fig.
+ 8 shows the error in the position states for the landing burn.
  Over 550 seconds the position estimate drifted by 5 m in the y direction
  and 1.5 m in the x direction.
  Since most of the motion for this trajectory was across the x direction,
@@ -1371,7 +1504,8 @@ Position Error
 \end_layout
 
 \begin_layout Standard
-Now, fig(9) shows the error in the velocity states.
+Now, Fig.
+ 9 shows the error in the velocity states.
  The velocity error is incredibly small over the whole simulation, on the
  order of 
 \begin_inset Formula $cm/s$
@@ -1429,11 +1563,7 @@ For now, process noise is not included in the bias, gravity, and height
 
  in velocity.
  So these state propagate exactly the same as the truth states and there
- are no errors [
-\series bold
-add state propagation for all states in final report
-\series default
-].
+ are no errors.
 \end_layout
 
 \begin_layout Standard
@@ -1452,7 +1582,7 @@ A feature is also added to the simulation to test the camera LOS measurements.
 \end_inset
 
 , until near the end of the simulation where some singularity seems to arise.
- The residuals of the camera measurements are shown in fig(10).
+ The residuals of the camera measurements are shown in Fig 10.
 \end_layout
 
 \begin_layout Standard
@@ -1510,7 +1640,7 @@ Linearization of Design Model
 
 \begin_layout Standard
 In an extended Kalman filter, the nonlinear design model is linearized about
- the current state estimate to produce (29).
+ the current state estimate to produce (36).
  We will begin by obtaining the 
 \begin_inset Formula $F$
 \end_inset
@@ -1555,9 +1685,9 @@ is highly nonlinear, derivatives with respect to each state become overly
 \begin_inset Formula $\boldsymbol{v}_{\perp}$
 \end_inset
 
- does not change with respect the position and velocity states which simplifies
- the Jacobian.
- The F matrix is defined by (30) and shown for this problem by (31) where
+ does not change with respect to the position and velocity states, which
+ simplifies the Jacobian.
+ The F matrix is defined by (37) and shown for this problem by (38) where
  
 \begin_inset Formula $\boldsymbol{0}$
 \end_inset
@@ -1612,7 +1742,7 @@ To check that the linearization of the design states accurately models error
 n is on the order of mm for position and cm/s for velocity over one Kalman
  cycle.
  All other states match almost perfectly with very low difference.
- The results of this test arre show in Table 1 which verifies the linearization
+ The results of this test are show in Table 1 which verifies the linearization
  which will be used in the Kalman filter.
  
 \end_layout
@@ -1622,10 +1752,6 @@ n is on the order of mm for position and cm/s for velocity over one Kalman
 wide false
 sideways false
 status collapsed
-
-\begin_layout Plain Layout
-
-\end_layout
 
 \begin_layout Plain Layout
 \begin_inset Caption Standard
@@ -2287,7 +2413,7 @@ Linear Measurement Modeling
 
 \begin_layout Standard
 We now need to create a linear model for our non-linear measurement model.
- Our goal is to obtain an equation of the form of (32).
+ Our goal is to obtain an equation of the form of (39).
 \end_layout
 
 \begin_layout Standard
@@ -2306,7 +2432,7 @@ We can obtain this
 \begin_inset Formula $H$
 \end_inset
 
- matrix by defining equation (33), similar to the linearization of the dynamics,
+ matrix by defining equation (40), similar to the linearization of the dynamics,
  we will compute a Jacobian and evaluate with our state estimate.
 \end_layout
 
@@ -2336,7 +2462,7 @@ We define
 \end_inset
 
 , we will use the chain rule to compute the Jacobian.
- Our measurement model can be written as show by (34).
+ Our measurement model can be written as show by (41).
 \end_layout
 
 \begin_layout Standard
@@ -2351,7 +2477,7 @@ We define
 \end_layout
 
 \begin_layout Standard
-So, the matrix H is now defined by (35).
+So, the matrix H is now defined by (42).
 \end_layout
 
 \begin_layout Standard
@@ -2378,7 +2504,7 @@ Computing these derivatives we obtain an explicit expression for
 \end_inset
 
 , observed by the camera is well known.
- Using this we can write (36).
+ Using this we can write (43).
 \end_layout
 
 \begin_layout Standard
@@ -2393,7 +2519,7 @@ Computing these derivatives we obtain an explicit expression for
 \end_layout
 
 \begin_layout Standard
-Now, H is defined by (37).
+Now, H is defined by
 \end_layout
 
 \begin_layout Standard
@@ -2412,7 +2538,7 @@ H=\left[\begin{array}{ccc}
 \end_layout
 
 \begin_layout Standard
-The residual for the camera measurements is given by (38).
+The residual for the camera measurements is given by (45).
  This is the quantity which will be compared to the linearized measurement
  model.
 \end_layout
@@ -2429,12 +2555,12 @@ The residual for the camera measurements is given by (38).
 \end_layout
 
 \begin_layout Standard
-To validate this linearization, we will compare the error in our measurement
+To validate this linearization, we will compare the error in our measurement,
  
 \begin_inset Formula $\boldsymbol{\tilde{z}}$
 \end_inset
 
- between the non-linear and linear forms.
+, between the non-linear and linear forms.
  To do this, we will compare the error generated using nonlinear propagation
  to the error using the linearized 
 \begin_inset Formula $H$
@@ -2580,7 +2706,7 @@ Difference
 \end_layout
 
 \begin_layout Section
-Simulation
+Estimation in Simulation
 \end_layout
 
 \begin_layout Subsection*
@@ -2588,7 +2714,7 @@ Covariance Propagation
 \end_layout
 
 \begin_layout Standard
-We now define the equations to propagate the co ariance in the Kalman Filter.
+We now define the equations to propagate the covariance in the Kalman filter.
  The change in covariance over time is given by (46).
 \begin_inset Formula 
 \begin{equation}
@@ -2687,14 +2813,14 @@ In this simulation, the steady state variance of each state will be used
 \begin_inset Formula $P.$
 \end_inset
 
- It is assumed that there is no cross correlation between states, so the
- covariance matrix will only be non-zero along it's diagonal.
+ It is assumed there is no cross correlation between states, so the covariance
+ matrix will only be non-zero along it's diagonal.
  Table 3 summarizes the 
 \begin_inset Formula $3\sigma$
 \end_inset
 
  value for each navigation state.
- Note, the non-gravitational power spectral density is also defined empirically
+ Note, the non-gravitational power spectral density is defined empirically
  as the velocity equation was not modeled as an exponentially correlated
  random variable.
  Also included is the velocity random walk, which is used to synthesize
@@ -3489,7 +3615,7 @@ With all these parameters defined, we can now propagate the covariance over
  Figures (11-13) show the position estimation errors over the Monte Carlo
  simulation.
  Without any state corrections the error in position grows to about 1000
- m in all directions.
+ m in all directions, but the hair plots remain bounded by the covariance.
  
 \end_layout
 
@@ -3984,7 +4110,7 @@ Now, with many of the simulation components verified and debugged, the Kalman
 \end_layout
 
 \begin_layout Standard
-Then the covariance is updated by (53), where the 
+Then, the covariance is updated by (53), where the 
 \begin_inset Formula $"^{-}"$
 \end_inset
 
@@ -4017,7 +4143,6 @@ P^{+}=[I-KH(\boldsymbol{\hat{x}}^{-})]P^{-}[I-KH(\boldsymbol{\hat{x}}^{-})]^{T}+
 \end_layout
 
 \begin_layout Standard
-where 
 \begin_inset Formula $G$
 \end_inset
 
@@ -4329,7 +4454,7 @@ X Gravity Anomaly Estimation Error with Measurement Updates
 \end_layout
 
 \begin_layout Standard
-The estimation error in terrain height is given by Fig.
+The estimation error in terrain height in meters is given by Fig.
  30 and has similar behavior to gravity anomaly, which is also a ECRV with
  a distance correlation rather than a time constant.
  Again the Kalman filter has no information on this state.
@@ -4814,7 +4939,201 @@ Overall, with some limiting assumptions, we see the estimation system is
 \end_layout
 
 \begin_layout Section
-Conclusions 
+Conclusions and Future Work
+\end_layout
+
+\begin_layout Standard
+The results of this study show the well documented derivation and estimation
+ capability for line of sight camera measurements on a Lunar lander navigation
+ system.
+ With just camera and accelerometer measurements, the estimation system
+ is able to predict the lander states to a high degree of accuracy.
+ Of course, this system has its limitations and more sensors would be required
+ for a more reliable spacecraft.
+ For example, the LOS measurements would become less reliable, or even unavailab
+le, as the lander gets closer to touch down.
+ Future work is needed to integrate other instruments, such as a radar altimeter
+, in tandem with the camera.
+ At some point, the camera measurements would have to be turned off, and
+ that would be an interesting study for this problem.
+ We also assumed a feature was always observed by the camera, which may
+ not always be the case.
+ It would be beneficial to add a terrain model to the simulation with different
+ pre-defined landmarks which could be used for navigation.
+ 
+\end_layout
+
+\begin_layout Standard
+Another limitation for this simulation is the knowledge of attitude states.
+ In the presented derivation, we assumed we had perfect knowledge of the
+ attitude of the vehicle which would not be the case in reality.
+ To provide a better simulation, future work would include a gyro, or other
+ attitude sensing instruments, to make a more accurate model.
+ Location of a feature in the camera's field of view could also help estimate
+ the lander's orientation, assuming the pointing direction of the camera
+ is well known.
+ Including attitude equations in the design model complicates the model
+ because quaternion equations would have to be used and linearized.
+ The use of quaternion attitude equations is well documented, but beyond
+ the scope of this project.
+ The estimation of attitude states should be included in future work.
+\end_layout
+
+\begin_layout Standard
+Overall, the model presented in this report serves as an outline for the
+ design of a Kalman filter.
+ Using the steps and verification presented, an estimation system can be
+ developed and debugged for any system.
+ The potential use for LOS measurements on a Lunar lander is shown to be
+ practical.
+ One of the most useful skills in developing a Kalman filter is having an
+ understanding on the conceptual level.
+ One must always understand why design choices are made and what is really
+ going on 
+\begin_inset Quotes eld
+\end_inset
+
+under the hood
+\begin_inset Quotes erd
+\end_inset
+
+ in a large simulation such as this.
+ When adequate time and effort is put into developing an estimation system,
+ the results are very satisfying.
+ This report is a basis, which shows a low cost Lunar lander using a minimal
+ sensor suit is feasible.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-1"
+
+\end_inset
+
+George, Michael and Sukkireih, Sarah, “Inertial Navigation Aided by Monocular
+ Camera Observations of Unknown Features,” in Proceedings 2007 IEEE Internationa
+l Conference on Robotics and Automation, Roma, Italy, April 10-14, 2007,
+ IEEE Xplore 2007.
+ pp 3558-3564.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-2"
+
+\end_inset
+
+Theil, S., Ammann, N., Andert, F., “ATON (Autonomous Terrain-based Optical
+ Navigation) for exploration missions: recent flight test results,” CEAS
+ Space Journal, vol.
+ 10, pp.
+ 325–341 Sep.
+ 2018.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-3"
+
+\end_inset
+
+Christensen, D., and Geller, F., “Terrain Relative and Beacon Relative Navigation
+ for Lunar Powered Descent and Landing,” J of Astronaut Sci, vol.
+ 58, pp.
+ 121–151.
+ Jan.
+ 2011.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-4"
+
+\end_inset
+
+Christensen, R., Geller, D., and Hansen, M., “Linear Covariance Navigation
+ Analysis of Range and Image Measurement Processing for Autonomous Lunar
+ Lander Missions,” in 2020 IEEE/ION Position, Location and Navigation Symposium
+ (PLANS), Portland, Oregon, USA, April 20-23, 2020, IEEE Xplore 2020, pp.
+ 1524-1535.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-5"
+
+\end_inset
+
+Masters, D., Axelrad, P., Zavorotny, V., Katzberg, S.J., Lalezari, F., "A Passive
+ GPS Bistatic Radar Altimeter for Aircraft Navigation," in Proceedings of
+ the 14th International Technical Meeting of the Satellite Division of The
+ Institute of Navigation (ION GPS 2001), Salt Lake City, UT, September 2001,
+ pp.
+ 2435-2445.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-6"
+
+\end_inset
+
+Youngjoo, Kim, and Junwoo, Park, “Terrain‐Referenced Navigation using an
+ Interferometric Radar Altimeter” J of Navigation, vol 65, pp.
+ 157-167, 2018.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-7"
+
+\end_inset
+
+D’Souza, Christopher, “An optimal guidance law for planetary landing” in
+ Guidance, Navigation, and Control Conference, New Orleans, LA, Aug 11-13.
+ 1997 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-8"
+
+\end_inset
+
+Kreigsman, B., and Reiss, M., “Terminal Guidance and Control Techniques for
+ Soft Lunar Landing” ARS Journal, vol.
+ 32, pp.
+ 401-413, 1962.
+ 
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-9"
+
+\end_inset
+
+Geller, D., and Christensen.
+ R., “Linear Covariance Analysis for Powered Lunar Descent and Landing” Journal
+ of Spacecraft and Rockets, vol.
+ 46, pp.
+ 1241-1248, Nov 2009.
+ 
 \end_layout
 
 \begin_layout Section*
@@ -4828,7 +5147,7 @@ Appendix A Simulation Parameters
 \begin_inset Float table
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -5309,6 +5628,140 @@ Desired acceleration at the final time
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Suggestions for Future Versions of the Class
+\end_layout
+
+\begin_layout Subsection*
+Assumed Background Knowledge
+\end_layout
+
+\begin_layout Standard
+My background prepared me well for this class.
+ As a mechanical and aerospace engineer, I have already been exposed to
+ dynamic models, linear algebra, quaternions, ect.
+ My background was definitely weak in statistics and random processes, which
+ is why I took the class.
+ I could see the ECE students had a harder time with the physical models
+ though.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Did you Enjoy the Freedom to Pursue a Project of Your Choice?
+\end_layout
+
+\begin_layout Standard
+Yes, it is 100% easier to work on a project you are actually interested
+ in.
+ In other classes this semester I was much less motivated on projects, simply
+ because I did not care about the assigned topic as much.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Do you want to create a conference or journal paper from your project?
+\end_layout
+
+\begin_layout Standard
+No, I focused on documenting my report for myself so I can used it for future
+ reference and bring it to job applications.
+ Plus, I feel my report is not as state of the art as it could be with a
+ higher fidelity simulation.
+\end_layout
+
+\begin_layout Subsection*
+Would you rather a single project that everyone works on during the semester?
+\end_layout
+
+\begin_layout Standard
+If the whole class agreed on an interesting project it could be a good thing
+ and I think you could make the project more difficult with more people
+ working on it.
+ On the contrary some students may not be as involved and wont learn as
+ much.
+ I think two or three projects is best for this class.
+ That way students have a better choice but don's loose the excellent attention
+ you offer in office hours.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Was the workload manageable?/Was the pace appropriate?
+\end_layout
+
+\begin_layout Standard
+Yes, I think the schedule was structured well as long as I didn't wait til
+ the last minute to complete things.
+ This class was a lot of work, but not more than one would expect for a
+ 7000 level class.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Do you feel like you gained the ability to debug an EKF?
+\end_layout
+
+\begin_layout Standard
+Yes, I love the debugging guide and the way you had us document every step.
+ It made it much more clear to document everything as we went along.
+ I also leaned a lot of smart ways to debug in MatLab which is a valuable
+ skill for any project.
+ 
+\end_layout
+
+\begin_layout Subsection*
+What other estimation techniques do you wish we had covered during class?
+\end_layout
+
+\begin_layout Standard
+I think as section on state of the art, or common, types of sensors used
+ in industry and how they function would be cool.
+ 
+\end_layout
+
+\begin_layout Subsection*
+What parts of the class would you keep the same?
+\end_layout
+
+\begin_layout Standard
+The project selection process, the pace, the level of difficulty, the help
+ in office hours.
+\end_layout
+
+\begin_layout Subsection*
+What parts of the class would you change?
+\end_layout
+
+\begin_layout Standard
+Honestly, this one of the best classes I have taken in college, and i'm
+ not afraid to hurt your 
+\begin_inset Quotes eld
+\end_inset
+
+feelings
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The literature review towards the beginning honestly didn't seem to benefit
+ me much.
+ For the most part I had no idea what the papers were really talking about.
+ If I re read them now I would have a better idea.
+ Maybe pick a good paper that describes an estimation system from start
+ to finish and have the whole class read it.
+ I can see why you had us do it, I just didn't get much out of it.
+ I learned much more about this project from you in class and office hours.
+ 
 \end_layout
 
 \end_body
